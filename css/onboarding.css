@@ -1,0 +1,453 @@
+/* ============================================================
+   PintuKoding — Onboarding (halaman pertama)
+   Hero aurora + partikel kode mengambang + logo glow + CTA shine
+   ============================================================ */
+
+.view-onboarding {
+  background: #060b13;
+  color: #fff;
+}
+
+/* --- Aurora: dua blob cahaya besar yang bergerak pelan ---
+   PENTING: pseudo-elemen ini harus selalu DI BELAKANG teks,
+   karena itu z-index: 0 dan container teks di-set relative z-index: 10. */
+.view-onboarding::before,
+.view-onboarding::after {
+  content: "";
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.16;
+  z-index: 0;
+  pointer-events: none;
+  animation: aurora-float 14s ease-in-out infinite alternate;
+}
+.view-onboarding::before {
+  background: radial-gradient(circle, rgba(33, 150, 243, 0.5), transparent 70%);
+  top: -20vmax;
+  left: -15vmax;
+}
+.view-onboarding::after {
+  background: radial-gradient(
+    circle,
+    rgba(102, 51, 204, 0.42),
+    transparent 70%
+  );
+  bottom: -22vmax;
+  right: -15vmax;
+  animation-delay: -7s;
+}
+@keyframes aurora-float {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(6vmax, 4vmax) scale(1.15);
+  }
+}
+
+/* --- Grid sangat halus + scrim tengah supaya teks kontras ---
+   Satu rule: background-image (grid) DIPISAH dari background-color
+   agar tidak saling menimpa. */
+.view-onboarding {
+  background-image:
+    radial-gradient(
+      ellipse 70% 60% at 50% 45%,
+      rgba(3, 6, 12, 0.85) 0%,
+      rgba(3, 6, 12, 0.4) 60%,
+      transparent 100%
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    44px 44px,
+    44px 44px;
+  background-position: center;
+}
+
+/* --- Partikel kode mengambang --- */
+.deco-code {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.deco-code span {
+  position: absolute;
+  top: 100%;
+  left: var(--x, 50%);
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--s, 1rem);
+  color: rgba(144, 202, 249, 0.14);
+  white-space: nowrap;
+  animation: code-rise var(--d, 18s) linear infinite;
+  animation-delay: var(--dl, 0s);
+}
+.deco-code span:nth-child(odd) {
+  color: rgba(33, 150, 243, 0.16);
+}
+@keyframes code-rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-115vh);
+    opacity: 0;
+  }
+}
+
+/* --- Dekorasi (lingkaran + partikel kode) SELALU di belakang konten --- */
+.onboarding-bg-decoration {
+  z-index: 0;
+}
+
+/* Container teks harus positioned agar z-index bekerja,
+   tanpa ini dekorasi absolute menutupi tulisan (bug lama). */
+.onboarding-container {
+  position: relative;
+  z-index: 10;
+}
+
+/* --- Logo dengan glow pulsing --- */
+.onboarding-logo {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  animation: step-in 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.logo-door {
+  position: relative;
+  z-index: 2;
+  font-size: 4.5rem;
+  display: inline-block;
+  filter: drop-shadow(0 8px 24px rgba(33, 150, 243, 0.45));
+  animation: door-float 3.5s ease-in-out infinite;
+}
+@keyframes door-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+.logo-glow {
+  position: absolute;
+  inset: -40%;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(33, 150, 243, 0.5) 0%,
+    rgba(33, 150, 243, 0) 70%
+  );
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* --- Badge mini di atas judul --- */
+.onboarding-badge {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.4rem 1rem;
+  border-radius: var(--pk-radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #b3e5fc;
+  background: rgba(33, 150, 243, 0.18);
+  border: 1px solid rgba(33, 150, 243, 0.35);
+  backdrop-filter: blur(6px);
+  animation: step-in 0.6s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+/* --- Judul: "Pintu" putih + "Koding" gradient animasi --- */
+.onboarding-title {
+  color: #fff;
+  font-size: 3.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  animation: step-in 0.6s 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.onboarding-title-accent {
+  background: linear-gradient(90deg, #64b5f6, #b3e5fc, #e1bee7, #64b5f6);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* Fallback kalau browser tidak mendukung gradient text:
+     tanpa clip, warna gradient jadi background block yang menutupi teks.
+     Deteksi: kalau tidak ada dukungan background-clip, pakai warna solid. */
+  animation: gradient-shift 6s linear infinite;
+}
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .onboarding-title-accent {
+    background: none;
+    color: #64b5f6;
+    -webkit-text-fill-color: #64b5f6;
+  }
+}
+@keyframes gradient-shift {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 300% 0;
+  }
+}
+
+/* --- Tagline: kata muncul satu-satu --- */
+.onboarding-tagline {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #b3e5fc;
+  margin-bottom: 1.25rem;
+  animation: step-in 0.6s 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.onboarding-tagline span {
+  position: relative;
+  padding-right: 0.75rem;
+}
+.onboarding-tagline span:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pk-blue);
+}
+
+.onboarding-desc {
+  color: #e3f2fd;
+  max-width: 26rem;
+  margin: 0 auto 2.25rem;
+  line-height: 1.7;
+  animation: step-in 0.6s 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+/* --- CTA button dengan shine + glow --- */
+.onboarding-cta {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.05rem;
+  padding: 1rem 2.5rem;
+  border-radius: var(--pk-radius-pill);
+  background: linear-gradient(135deg, var(--pk-blue) 0%, #1565c0 100%);
+  box-shadow:
+    0 8px 30px rgba(33, 150, 243, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+  animation: step-in 0.6s 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.onboarding-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 14px 40px rgba(33, 150, 243, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.onboarding-cta:active {
+  transform: translateY(0) scale(0.98);
+}
+.cta-arrow:last-child {
+  animation: arrow-nudge 1.6s ease-in-out infinite;
+}
+@keyframes arrow-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+/* Shine yang menyapu lewat tombol */
+.onboarding-cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: cta-shine 3.2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+@keyframes cta-shine {
+  0% {
+    left: -80%;
+  }
+  45%,
+  100% {
+    left: 140%;
+  }
+}
+
+/* --- Feature chips --- */
+.onboarding-feature-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  animation: step-in 0.6s 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.onboarding-feature {
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--pk-radius-pill);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #eceff1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+/* ===== STEP 2: halaman masukan nama ===== */
+.onboarding-step {
+  animation: step-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.onboarding-emoji {
+  margin-bottom: 0.75rem;
+}
+.emoji-wave {
+  display: inline-block;
+  font-size: 4rem;
+  transform-origin: 70% 70%;
+  animation: emoji-wave 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 8px 24px rgba(33, 150, 243, 0.4));
+}
+@keyframes emoji-wave {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  30% {
+    transform: rotate(-14deg);
+  }
+  20%,
+  40% {
+    transform: rotate(12deg);
+  }
+}
+
+.onboarding-step2-title {
+  color: #fff;
+  font-size: 2.1rem;
+  margin-bottom: 0.35rem;
+}
+.onboarding-step2-sub {
+  color: #cfd8dc;
+  margin-bottom: 2rem;
+}
+
+.onboarding-name-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1.05rem;
+  text-align: center;
+  border-radius: var(--pk-radius);
+  border: 1px solid rgba(144, 202, 249, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
+  animation: step-in 0.5s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.onboarding-name-input::placeholder {
+  color: rgba(144, 202, 249, 0.5);
+}
+.onboarding-name-input:focus {
+  outline: none;
+  border-color: var(--pk-blue);
+  background: rgba(33, 150, 243, 0.08);
+  box-shadow:
+    0 0 0 4px rgba(33, 150, 243, 0.18),
+    0 8px 24px rgba(33, 150, 243, 0.2);
+}
+
+.onboarding-input-group {
+  gap: 0.75rem;
+}
+.onboarding-input-group .onboarding-cta {
+  width: 100%;
+  justify-content: center;
+  animation-delay: 0.18s;
+}
+
+.onboarding-hint {
+  color: #b0bec5;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+/* Dekorasi lingkaran lama: sangat redup supaya tidak mengganggu teks */
+.deco-circle {
+  opacity: 0.35;
+}
+
+@media (max-width: 480px) {
+  .onboarding-title {
+    font-size: 2.6rem;
+  }
+  .onboarding-cta {
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+  }
+}

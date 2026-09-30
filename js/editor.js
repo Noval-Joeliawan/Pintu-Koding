@@ -1,0 +1,165 @@
+// js/editor.js — Code Editor & Preview
+window.Editor = {
+  instances: {},
+  _cmById: {},
+
+  create(config) {
+    const { editorId, previewId, lineNumbersId, defaultCode = '', autoRun = false } = config;
+    const editor = document.getElementById(editorId);
+    if (!editor) return null;
+
+    if (defaultCode && !editor.value) editor.value = defaultCode;
+
+    // Line numbers
+    if (lineNumbersId) {
+      this.updateLineNumbers(editorId, lineNumbersId);
+      editor.addEventListener('input', () => this.updateLineNumbers(editorId, lineNumbersId));
+      editor.addEventListener('scroll', () => {
+        const ln = document.getElementById(lineNumbersId);
+        if (ln) ln.scrollTop = editor.scrollTop;
+      });
+    }
+
+    // Tab key
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 2;
+        if (lineNumbersId) this.updateLineNumbers(editorId, lineNumbersId);
+      }
+    });
+
+    const instance = {
+      run: () => {
+        if (previewId) Editor.runPreview(editor.value, previewId);
+      },
+      reset: () => {
+        editor.value = defaultCode;
+        if (lineNumbersId) Editor.updateLineNumbers(editorId, lineNumbersId);
+        if (previewId && autoRun) Editor.runPreview(editor.value, previewId);
+      },
+      getCode: () => editor.value,
+      setCode: (code) => {
+        editor.value = code;
+        if (lineNumbersId) Editor.updateLineNumbers(editorId, lineNumbersId);
+      }
+    };
+
+    this.instances[editorId] = instance;
+
+    if (autoRun && previewId && defaultCode) {
+      this.runPreview(defaultCode, previewId);
+    }
+
+    return instance;
+  },
+
+  updateLineNumbers(editorId, lineNumbersId) {
+    const editor = document.getElementById(editorId);
+    const ln = document.getElementById(lineNumbersId);
+    if (!editor || !ln) return;
+
+    const lines = editor.value.split('\n').length;
+    const nums = [];
+    for (let i = 1; i <= Math.max(lines, 1); i++) {
+      nums.push(i);
+    }
+    ln.textContent = nums.join('\n');
+    ln.scrollTop = editor.scrollTop;
+  },
+
+  /** Run raw editor code into preview (works for CM-enhanced or plain textareas). */
+  runCurrent(textareaId, iframeId) {
+    this.runPreview(this.getCode(textareaId), iframeId);
+  },
+
+  /**
+   * Upgrade a plain <textarea> into a CodeMirror editor in-place.
+   * Falls back silently to the existing textarea if CodeMirror is not loaded.
+   * Raw code is still readable via Editor.getCode(textareaId).
+   */
+  enhance(textareaId, opts) {
+    opts = opts || {};
+    const ta = document.getElementById(textareaId);
+    if (!ta) return null;
+
+    // Already enhanced? Recreate if the previous instance was removed from the DOM
+    // (lesson slides re-render their editors on every slide change).
+    const prev = this._cmById[textareaId];
+    if (prev) {
+      if (prev.getWrapperElement && prev.getWrapperElement().isConnected) return prev;
+      this._cmById[textareaId] = null;
+    }
+
+    // CodeMirror not (fully) loaded yet or blocked/offline → keep plain textarea behavior
+    if (typeof window.CodeMirror === 'undefined' || !window.PKCodeMirrorReady) return null;
+
+    const value = ta.value;
+    // Hide the old manual line-number gutter — CM renders its own
+    const wrap = ta.closest('.code-editor-wrapper');
+    if (wrap) {
+      wrap.querySelectorAll('.line-numbers').forEach(el => el.style.display = 'none');
+    }
+
+    const cm = window.CodeMirror.fromTextArea(ta, {
+      mode: 'htmlmixed',
+      theme: 'pk',
+      lineNumbers: true,
+      indentUnit: 2,
+      tabSize: 2,
+      smartIndent: true,
+      indentWithTabs: false,
+      autoCloseTags: true,
+      matchBrackets: true,
+      matchTags: { bothTags: true },
+      lineWrapping: false,
+      inputStyle: 'textarea',
+      extraKeys: {
+        'Shift-Enter': () => { if (opts.onRun) opts.onRun(); },
+        'Ctrl-Enter': () => { if (opts.onRun) opts.onRun(); },
+        Tab: (cm) => {
+          if (cm.somethingSelected()) {
+            cm.indentSelection('add');
+          } else {
+            cm.replaceSelection('  ', 'end');
+          }
+        },
+        'Shift-Tab': (cm) => cm.indentSelection('subtract')
+      }
+    });
+
+    if (value) cm.setValue(value);
+    cm.setSize('100%', '100%');
+    cm.refresh();
+
+    this._cmById[textareaId] = cm;
+    return cm;
+  },
+
+  /** Single source of truth for editor content (CM or plain textarea). */
+  getCode(textareaId) {
+    const cm = this._cmById[textareaId];
+    if (cm) return cm.getValue();
+    const el = document.getElementById(textareaId);
+    return el ? el.value : '';
+  },
+
+  setCode(textareaId, code) {
+    const cm = this._cmById[textareaId];
+    if (cm) { cm.setValue(code); cm.refresh(); return; }
+    const el = document.getElementById(textareaId);
+    if (el) el.value = code;
+  },
+
+  runPreview(code, iframeId) {
+    const iframe = document.getElementById(iframeId);
+    if (!iframe) return;
+
+    // Use srcdoc for security (iframe sandbox)
+    const safeCode = code || '';
+    iframe.srcdoc = safeCode;
+  }
+};

@@ -1,0 +1,294 @@
+/* css/editor.css — Code Editor & Playground */
+
+/* === PLAYGROUND LAYOUT === */
+.playground-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  height: calc(100vh - 200px);
+  min-height: 400px;
+}
+
+.editor-panel,
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--pk-radius);
+  overflow: hidden;
+  border: 1px solid var(--pk-gray-200);
+  background: #1e2d3d;
+}
+
+.preview-panel {
+  background: white;
+  border-color: var(--pk-border);
+}
+
+/* === TOOLBAR === */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: #162534;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.preview-panel .editor-toolbar {
+  background: var(--pk-gray-100);
+  border-bottom: 1px solid var(--pk-border);
+}
+
+.editor-lang-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.editor-panel .editor-lang-badge {
+  color: #94a3b8;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* === CODE EDITOR WRAPPER === */
+.code-editor-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.line-numbers {
+  background: #162534;
+  color: #4a5568;
+  padding: 0.75rem 0.5rem 0.75rem 0.25rem;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  text-align: right;
+  min-width: 2.5rem;
+  user-select: none;
+  white-space: pre;
+  overflow: hidden;
+  line-height: 1.5;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.code-editor-textarea {
+  flex: 1;
+  background: #1e2d3d;
+  color: #cdd6f4;
+  border: none;
+  padding: 0.75rem;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  tab-size: 2;
+  overflow-y: auto;
+  caret-color: var(--pk-blue);
+}
+
+.code-editor-textarea::placeholder {
+  color: #4a5568;
+}
+
+.code-editor-textarea::selection {
+  background: rgba(33, 150, 243, 0.3);
+}
+
+/* === PREVIEW IFRAME === */
+.preview-iframe {
+  width: 100%;
+  flex: 1;
+  border: none;
+  background: white;
+}
+
+/* === CHALLENGE LAYOUT (in lesson) === */
+.challenge-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.challenge-layout .editor-panel {
+  border-radius: var(--pk-radius-sm);
+  min-height: 200px;
+}
+
+.challenge-layout .preview-panel {
+  border-radius: var(--pk-radius-sm);
+  min-height: 200px;
+}
+
+.challenge-layout .code-editor-textarea {
+  min-height: 180px;
+}
+
+.challenge-layout .preview-iframe {
+  min-height: 180px;
+}
+
+/* In lesson exercises (fix-code) */
+.exercise-fix .code-editor-wrapper {
+  border-radius: var(--pk-radius-sm);
+  min-height: 100px;
+}
+
+.exercise-fix .code-editor-textarea {
+  min-height: 100px;
+}
+
+/* === Editor refinements === */
+.editor-panel,
+.preview-panel {
+  box-shadow: var(--pk-shadow-sm);
+}
+
+.editor-panel .btn-primary {
+  box-shadow: none;
+}
+
+.code-editor-textarea:focus {
+  box-shadow: inset 0 0 0 1px rgba(33, 150, 243, 0.22);
+}
+
+.project-checklist,
+.exercise-feedback {
+  background: var(--pk-surface-soft);
+}
+
+/* === CODEMIRROR INTEGRATION ===
+   codemirror.css is loaded from the CDN AFTER this file, so plain `.CodeMirror` rules lose
+   to its light defaults (white editor, black text, light-grey gutter). Every themed rule is
+   therefore scoped with `.cm-s-pk` (higher specificity) so the dark theme always wins. */
+.CodeMirror {
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.CodeMirror.cm-s-pk {
+  background: #1e2d3d;
+  color: #cdd6f4;
+}
+
+.CodeMirror.cm-s-pk .CodeMirror-lines {
+  padding: 0.75rem 0;
+}
+
+.cm-s-pk .CodeMirror-gutters {
+  background: #162534;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cm-s-pk .CodeMirror-linenumber {
+  color: #6b7f99;
+  padding: 0 0.5rem 0 0.75rem;
+}
+
+.cm-s-pk .CodeMirror-cursor {
+  border-left: 2px solid var(--pk-blue, #2196f3);
+}
+
+.cm-s-pk .CodeMirror-selected {
+  background: rgba(33, 150, 243, 0.3) !important;
+}
+
+.cm-s-pk.CodeMirror-focused .CodeMirror-selected {
+  background: rgba(33, 150, 243, 0.3) !important;
+}
+
+.cm-s-pk .CodeMirror-matchingbracket {
+  color: #ffd54f !important;
+  border-bottom: 1px solid #ffd54f;
+  font-weight: bold;
+}
+
+.cm-s-pk .CodeMirror-matchingtag {
+  background: rgba(33, 150, 243, 0.25);
+}
+
+.cm-s-pk .CodeMirror-activeline-background {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Theme "pk" token colors — matches the dashboard code-card palette */
+.cm-s-pk .cm-tag {
+  color: #f78166;
+} /* <h1>, </p>        */
+.cm-s-pk .cm-bracket {
+  color: #89ddff;
+} /* < >               */
+.cm-s-pk .cm-attribute {
+  color: #c3e88d;
+} /* class, href       */
+.cm-s-pk .cm-string {
+  color: #e5c07b;
+} /* "judul"          */
+.cm-s-pk .cm-string-2 {
+  color: #e5c07b;
+}
+.cm-s-pk .cm-comment {
+  color: #7b93a8;
+  font-style: italic;
+} /* <!-- -->          */
+.cm-s-pk .cm-def {
+  color: #82aaff;
+} /* DOCTYPE           */
+.cm-s-pk .cm-meta {
+  color: #89ddff;
+} /* <! ... >          */
+.cm-s-pk .cm-keyword {
+  color: #c792ea;
+} /* JS keywords       */
+.cm-s-pk .cm-number {
+  color: #f78c6c;
+}
+.cm-s-pk .cm-variable {
+  color: #cdd6f4;
+}
+.cm-s-pk .cm-variable-2 {
+  color: #82aaff;
+}
+.cm-s-pk .cm-property {
+  color: #89ddff;
+} /* CSS property      */
+.cm-s-pk .cm-builtin {
+  color: #f07178;
+}
+.cm-s-pk .cm-atom {
+  color: #f78c6c;
+}
+.cm-s-pk .cm-operator {
+  color: #89ddff;
+}
+.cm-s-pk .cm-qualifier {
+  color: #c3e88d;
+} /* CSS class selector*/
+.cm-s-pk .cm-tag.cm-bracket {
+  color: #89ddff;
+}
+.cm-s-pk .cm-error {
+  color: #ff8a80;
+}
+
+/* Editor must never push the layout wider than its panel */
+.code-editor-wrapper {
+  min-width: 0;
+}
+.editor-panel,
+.preview-panel {
+  min-width: 0;
+}
