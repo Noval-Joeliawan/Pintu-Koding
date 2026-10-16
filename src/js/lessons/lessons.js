@@ -6,11 +6,13 @@ window.LessonEngine = {
   currentIndex: 0,
   isExerciseSlide: false,
   hasAnswered: false,
+  isPracticeMode: false,
   _lessonData: null,
 
-  open(levelId, lessonId) {
+  open(levelId, lessonId, isPractice = false) {
     levelId = parseInt(levelId);
     lessonId = parseInt(lessonId);
+    this.isPracticeMode = !!isPractice;
 
     const lesson = LessonData.getLesson(levelId, lessonId);
     if (!lesson) {
@@ -25,10 +27,14 @@ window.LessonEngine = {
     this.currentIndex = 0;
     this.hasAnswered = false;
 
-    // Update last lesson in storage
-    const user = Storage.getUser();
-    user.lastLesson = `${levelId}-${lessonId}`;
-    Storage.saveUser(user);
+    // Update last lesson in state / storage
+    if (window.State) {
+      window.State.setCurrentLesson(levelId, lessonId);
+    } else {
+      const user = Storage.getUser();
+      user.lastLesson = `${levelId}-${lessonId}`;
+      Storage.saveUser(user);
+    }
 
     // Switch to lesson view
     if (window.Navigation) Navigation.currentView = 'lesson';
@@ -54,8 +60,12 @@ window.LessonEngine = {
     // Update lesson header
     const lvlBadge = document.getElementById('lesson-level-badge');
     const titleLabel = document.getElementById('lesson-title-label');
-    if (lvlBadge) lvlBadge.textContent = `Level ${levelId}`;
-    if (titleLabel) titleLabel.textContent = lesson.title;
+    if (lvlBadge) lvlBadge.textContent = this.isPracticeMode ? `Mode Latihan` : `Level ${levelId}`;
+    if (titleLabel) {
+      titleLabel.innerHTML = this.isPracticeMode
+        ? `${lesson.title} <span class="badge-practice" style="background:var(--pk-error-light);color:var(--pk-error);font-size:0.75rem;padding:0.2rem 0.6rem;border-radius:12px;font-weight:600;margin-left:0.5rem">❤️ +1 Heart jika selesai</span>`
+        : lesson.title;
+    }
 
     // Show footer buttons
     const footer = document.getElementById('lesson-footer');
@@ -66,6 +76,31 @@ window.LessonEngine = {
     if (btnPrev) btnPrev.style.display = '';
 
     this.renderSlide();
+  },
+
+  /**
+   * FR-3.1: Buka Mode Latihan untuk memulihkan nyawa (+1 Heart tanpa XP)
+   */
+  openPractice(levelId, lessonId) {
+    const user = (typeof window !== 'undefined' && window.State)
+      ? window.State.getUser()
+      : (window.Storage ? window.Storage.getUser() : null);
+
+    let targetLvl = levelId ? parseInt(levelId, 10) : null;
+    let targetLsn = lessonId ? parseInt(lessonId, 10) : null;
+
+    if (!targetLvl || !targetLsn) {
+      if (user && user.completedLessons && user.completedLessons.length > 0) {
+        const parts = user.completedLessons[0].split('-');
+        targetLvl = parseInt(parts[0], 10);
+        targetLsn = parseInt(parts[1], 10);
+      } else {
+        targetLvl = 1;
+        targetLsn = 1;
+      }
+    }
+
+    this.open(targetLvl, targetLsn, true);
   },
 
   close() {
@@ -236,10 +271,12 @@ window.LessonEngine = {
         }
       }
     } else {
-      // Wrong answer: lose heart
-      Hearts.lose();
+      // Wrong answer: lose heart (only if NOT in practice mode)
+      if (!this.isPracticeMode) {
+        Hearts.lose();
+      }
       Hearts.render();
-      if (Hearts.get() <= 0) {
+      if (Hearts.get() <= 0 && !this.isPracticeMode) {
         setTimeout(() => this._showHeartEmptyModal(), 1200);
       }
     }
@@ -248,6 +285,15 @@ window.LessonEngine = {
   _completeLesson() {
     const levelId = this.levelId;
     const lessonId = this.lessonId;
+
+    // FR-3.1: Mode Latihan menyelesaikan sesi pemulihan (+1 Heart tanpa XP)
+    if (this.isPracticeMode) {
+      this._xpGained = 0;
+      Hearts.recoverFromPractice();
+      this._showLessonCompleteScreen();
+      return;
+    }
+
     const xpBefore = Storage.getUser().xp;
 
     // Add lesson XP (anti-double)
@@ -330,13 +376,20 @@ window.LessonEngine = {
     if (container) {
       container.innerHTML = `
         <div class="completion-screen">
-          <div class="completion-emoji">🎉</div>
-          <h2 class="completion-title">Lesson Selesai!</h2>
-          ${this._xpGained > 0 ? `<p class="completion-xp">⭐ +${this._xpGained} XP</p>` : '<p class="completion-xp">✓ Lesson diulang (XP sudah diklaim)</p>'}
-          <p style="color:var(--pk-text-light);margin-bottom:1.5rem">Terus semangat belajar!</p>
+          <div class="completion-emoji">${this.isPracticeMode ? '💖' : '🎉'}</div>
+          <h2 class="completion-title">${this.isPracticeMode ? 'Latihan Selesai!' : 'Lesson Selesai!'}</h2>
+          ${this.isPracticeMode
+            ? '<p class="completion-xp" style="color:var(--pk-error);font-weight:700">❤️ +1 Heart Berhasil Dipulihkan!</p>'
+            : (this._xpGained > 0 ? `<p class="completion-xp">⭐ +${this._xpGained} XP</p>` : '<p class="completion-xp">✓ Lesson diulang (XP sudah diklaim)</p>')
+          }
+          <p style="color:var(--pk-text-light);margin-bottom:1.5rem">
+            ${this.isPracticeMode ? 'Kamu siap melanjutkan materi belajar berikutnya.' : 'Terus semangat belajar!'}
+          </p>
           <div class="completion-actions">
             <button class="btn btn-outline" onclick="LessonEngine.close()">Kembali ke Menu</button>
-            <button class="btn btn-primary btn-lg" onclick="LessonEngine._goNextLesson()">Lesson Berikutnya →</button>
+            <button class="btn btn-primary btn-lg" onclick="${this.isPracticeMode ? 'LessonEngine.close()' : 'LessonEngine._goNextLesson()'}">
+              ${this.isPracticeMode ? 'Lanjut Belajar →' : 'Lesson Berikutnya →'}
+            </button>
           </div>
         </div>
       `;
@@ -373,17 +426,38 @@ window.LessonEngine = {
       <div style="text-align:center">
         <div style="font-size:3.5rem;margin-bottom:1rem">💔</div>
         <h3 style="margin-bottom:0.5rem;color:var(--pk-error)">Heart Kamu Habis!</h3>
-        <p style="color:var(--pk-text-light);margin-bottom:1rem">Jangan khawatir! Heart akan kembali secara otomatis.</p>
+        <p style="color:var(--pk-text-light);margin-bottom:1rem">Jangan khawatir! Kamu bisa memulihkan nyawa lewat Mode Latihan atau menunggu timer.</p>
         <div style="background:var(--pk-error-light);padding:1rem;border-radius:var(--pk-radius);margin-bottom:1.5rem">
-          <p style="color:var(--pk-error);font-weight:600;font-size:0.85rem">Next Heart:</p>
+          <p style="color:var(--pk-error);font-weight:600;font-size:0.85rem">Next Heart (Interval 30 menit):</p>
           <p style="color:var(--pk-error);font-size:1.5rem;font-weight:800" id="modal-heart-timer">${h}:${m}:${s}</p>
         </div>
-        <p style="font-size:0.85rem;color:var(--pk-text-light);margin-bottom:1.5rem">Kamu masih bisa membaca materi dan menjelajah Playground.</p>
+        <p style="font-size:0.85rem;color:var(--pk-text-light);margin-bottom:1.5rem">Selesaikan 1 sesi latihan untuk materi yang sudah kamu kuasai untuk mendapatkan +1 Heart!</p>
         <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap">
-          <button class="btn btn-outline" onclick="Navigation.hideModal()">Mengerti</button>
-          <button class="btn btn-primary" onclick="Navigation.hideModal();LessonEngine.close()">Ke Menu</button>
+          <button class="btn btn-primary" onclick="Navigation.hideModal();LessonEngine.openPractice()">❤️ Latihan Pemulihan (+1 Heart)</button>
+          <button class="btn btn-outline" onclick="Navigation.hideModal();LessonEngine.close()">Ke Menu</button>
         </div>
       </div>
     `);
+  },
+
+  initListeners() {
+    if (typeof window !== 'undefined' && window.Events) {
+      window.Events.on(window.Events.HEARTS_EMPTY, () => {
+        // Otomatis tampilkan dialog pemulihan jika modal belum terbuka
+        const modal = document.getElementById('modal-container');
+        if (!modal || modal.style.display !== 'flex') {
+          this._showHeartEmptyModal();
+        }
+      });
+    }
   }
 };
+
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.LessonEngine && window.LessonEngine.initListeners) {
+      window.LessonEngine.initListeners();
+    }
+  });
+}
+

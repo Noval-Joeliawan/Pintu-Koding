@@ -76,6 +76,9 @@ window.Navigation = {
     XP.render();
     Hearts.render();
     Streak.render();
+    if (window.Editor && window.State) {
+      window.Editor.lockExecution(window.State.isHeartsEmpty());
+    }
   },
 
   renderDashboard() {

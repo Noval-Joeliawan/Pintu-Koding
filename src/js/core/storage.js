@@ -15,7 +15,8 @@
     achievements: 'pk_achievements',
     lastLesson: 'pk_last_lesson',
     dailyBonusDate: 'pk_daily_bonus_date',
-    onboardingDone: 'pk_onboarding_done'
+    onboardingDone: 'pk_onboarding_done',
+    checksum: 'pk_checksum'
   };
 
   const DEFAULT_USER = {
@@ -166,6 +167,18 @@
     getTodayString() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
+
+    getChecksum() {
+      return localStorage.getItem(KEYS.checksum) || '';
+    },
+
+    setChecksum(val) {
+      localStorage.setItem(KEYS.checksum, val || '');
     }
   };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = window.Storage;
+  }
 })();

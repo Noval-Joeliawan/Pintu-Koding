@@ -158,8 +158,80 @@ window.Editor = {
     const iframe = document.getElementById(iframeId);
     if (!iframe) return;
 
-    // Use srcdoc for security (iframe sandbox)
+    // Use srcdoc for security (iframe sandbox without allow-same-origin)
+    if (!iframe.getAttribute('sandbox')) {
+      iframe.setAttribute('sandbox', 'allow-scripts allow-modals');
+    }
     const safeCode = code || '';
     iframe.srcdoc = safeCode;
+  },
+
+  /**
+   * FR-1.2: Execute code via isolated Sandbox using structured postMessage
+   */
+  async executeCode(code, options) {
+    if (window.Sandbox && typeof window.Sandbox.execute === 'function') {
+      return await window.Sandbox.execute(code, options);
+    }
+    return {
+      status: 'error',
+      output: 'Sandbox runner tidak tersedia.',
+      executionTime: 0
+    };
+  },
+
+  /**
+   * FR-2.2: Mengunci tombol eksekusi saat nyawa habis
+   */
+  lockExecution(locked = true) {
+    const runButtons = document.querySelectorAll('#btn-playground-run, #btn-check-answer');
+    runButtons.forEach(btn => {
+      if (btn) {
+        btn.disabled = locked;
+        if (locked) {
+          btn.classList.add('disabled');
+          btn.setAttribute('data-locked-reason', 'HEARTS_EMPTY');
+        } else {
+          btn.classList.remove('disabled');
+          btn.removeAttribute('data-locked-reason');
+        }
+      }
+    });
+  },
+
+  unlockExecution() {
+    this.lockExecution(false);
+  },
+
+  initListeners() {
+    if (window.Events) {
+      window.Events.on(window.Events.HEARTS_EMPTY, () => {
+        this.lockExecution(true);
+      });
+      window.Events.on(window.Events.HEART_REFILLED, (data) => {
+        if (data && data.hearts > 0) {
+          this.unlockExecution();
+        }
+      });
+      window.Events.on(window.Events.STATE_CHANGED, (data) => {
+        if (data && data.key === 'hearts') {
+          if (data.value > 0) {
+            this.unlockExecution();
+          } else {
+            this.lockExecution(true);
+          }
+        }
+      });
+    }
   }
 };
+
+// Initialize listeners if in browser
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.Editor && window.Editor.initListeners) {
+      window.Editor.initListeners();
+    }
+  });
+}
+

@@ -265,7 +265,7 @@ window.LessonData = {
 // End of data.js
 `;
 
-fs.writeFileSync("js/data.js", jsContent);
+fs.writeFileSync("src/js/lessons/data.js", jsContent);
 console.log(
-  "js/data.js has been fully generated with all 12 levels and 60 lessons!",
+  "src/js/lessons/data.js has been fully generated with all 12 levels and 60 lessons!",
 );

@@ -4,6 +4,12 @@ window.App = {
 
   init() {
     Storage.init();
+    if (window.State) {
+      window.State.init();
+    }
+    if (window.Sandbox) {
+      window.Sandbox.init();
+    }
 
     if (!Storage.isOnboardingDone()) {
       this._showOnboarding();
@@ -73,8 +79,13 @@ window.App = {
     document.getElementById('app-shell').style.display = 'flex';
 
     // Init modules
+    if (window.State) window.State.init();
+    if (window.Sandbox) window.Sandbox.init();
+    if (window.XP && window.XP.init) window.XP.init();
     Hearts.init();
     Hearts.checkDailyBonus();
+    if (window.Editor && window.Editor.initListeners) window.Editor.initListeners();
+    if (window.LessonEngine && window.LessonEngine.initListeners) window.LessonEngine.initListeners();
     Navigation.init();
     Navigation.initKeyboardShortcuts();
     Navigation.updateAllStats();
@@ -148,6 +159,12 @@ window.App = {
 
     // Playground buttons
     document.getElementById('btn-playground-run')?.addEventListener('click', () => {
+      if (window.State && window.State.isHeartsEmpty()) {
+        if (window.Events) {
+          window.Events.emit(window.Events.HEARTS_EMPTY, { source: 'playground' });
+        }
+        return;
+      }
       Editor.runPreview(Editor.getCode('playground-editor'), 'playground-preview');
     });
 
