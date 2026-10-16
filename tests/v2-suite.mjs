@@ -62,15 +62,16 @@ test('Direktori target ada sesuai spesifikasi PRD v2.0', () => {
   }
 });
 
-test('File index.html berada di src/ dan script paths termutakhirkan', () => {
-  const indexHtmlPath = path.join(rootDir, 'src/index.html');
-  assert.strictEqual(fs.existsSync(indexHtmlPath), true, 'src/index.html tidak ditemukan');
+test('File index.html berada di root (untuk GitHub Pages) dan script paths termutakhirkan', () => {
+  const indexHtmlPath = path.join(rootDir, 'index.html');
+  assert.strictEqual(fs.existsSync(indexHtmlPath), true, 'index.html tidak ditemukan di root');
   const content = fs.readFileSync(indexHtmlPath, 'utf8');
-  assert.strictEqual(content.includes('js/core/events.js'), true, 'Missing events.js script tag');
-  assert.strictEqual(content.includes('js/core/state.js'), true, 'Missing state.js script tag');
-  assert.strictEqual(content.includes('js/editor/sandbox.js'), true, 'Missing sandbox.js script tag');
-  assert.strictEqual(content.includes('js/gamification/hearts.js'), true, 'Missing hearts.js script tag');
-  assert.strictEqual(content.includes('js/lessons/data.js'), true, 'Missing data.js script tag');
+  assert.strictEqual(content.includes('src/js/core/events.js'), true, 'Missing events.js script tag');
+  assert.strictEqual(content.includes('src/js/core/state.js'), true, 'Missing state.js script tag');
+  assert.strictEqual(content.includes('src/js/editor/sandbox.js'), true, 'Missing sandbox.js script tag');
+  assert.strictEqual(content.includes('src/js/gamification/hearts.js'), true, 'Missing hearts.js script tag');
+  assert.strictEqual(content.includes('src/js/lessons/data.js'), true, 'Missing data.js script tag');
+  assert.strictEqual(content.includes('src/css/style.css'), true, 'Missing style.css link tag');
 });
 
 test('Tidak ada berkas sementara / technical debt data_placeholder.js di root maupun src', () => {
