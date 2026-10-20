@@ -1,667 +1,586 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
-    <title>PintuKoding — Belajar. Ngoding. Berkembang.</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet"
-      />
-    </noscript>
-    <link rel="stylesheet" href="src/css/style.css" />
-    <link rel="stylesheet" href="src/css/components.css" />
-    <link rel="stylesheet" href="src/css/dashboard.css" />
-    <link rel="stylesheet" href="src/css/lesson.css" />
-    <link rel="stylesheet" href="src/css/editor.css" />
-    <link rel="stylesheet" href="src/css/responsive.css" />
-    <link rel="stylesheet" href="src/css/onboarding.css" />
-  </head>
 
-  <body>
-    <!-- ===== ONBOARDING ===== -->
-    <div id="view-onboarding" class="view view-onboarding active">
-      <div class="onboarding-bg-decoration">
-        <div class="deco-circle deco-1"></div>
-        <div class="deco-circle deco-2"></div>
-        <div class="deco-circle deco-3"></div>
-        <div class="deco-code" aria-hidden="true">
-          <span>&lt;html&gt;</span><span>&lt;body&gt;</span
-          ><span>&lt;h1&gt;</span><span>&lt;p&gt;</span><span>&lt;div&gt;</span
-          ><span>&lt;a&gt;</span><span>&lt;/div&gt;</span
-          ><span>&lt;img&gt;</span><span>&lt;li&gt;</span
-          ><span>&lt;/h1&gt;</span><span>&lt;button&gt;</span
-          ><span>&lt;/a&gt;</span><span>&lt;span&gt;</span
-          ><span>&lt;/body&gt;</span><span>&lt;/html&gt;</span
-          ><span>&lt;section&gt;</span><span>&lt;input&gt;</span
-          ><span>&lt;form&gt;</span><span>&lt;ul&gt;</span
-          ><span>&lt;nav&gt;</span><span>&lt;/p&gt;</span>
-        </div>
-      </div>
-      <div class="onboarding-container">
-        <div id="onboarding-step-1" class="onboarding-step">
-          <div class="onboarding-logo">
-            <span class="logo-door">🚪</span>
-            <span class="logo-glow" aria-hidden="true"></span>
-          </div>
-          <div class="onboarding-badge">✨ Gratis 100% · Untuk Pemula</div>
-          <h1 class="onboarding-title">
-            Pintu<span class="onboarding-title-accent">Koding</span>
-          </h1>
-          <p class="onboarding-tagline">
-            <span>Belajar.</span>
-            <span>Ngoding.</span>
-            <span>Berkembang.</span>
-          </p>
-          <p class="onboarding-desc">
-            Belajar HTML dari nol sampai bisa membuat website — lewat materi
-            interaktif, latihan langsung, dan XP sebagai reward. 🚀
-          </p>
-          <button
-            id="btn-onboarding-start"
-            class="btn btn-primary btn-lg onboarding-cta"
-          >
-            <span class="cta-arrow">▶</span>
-            <span>Mulai Belajar</span>
-            <span class="cta-arrow">→</span>
-          </button>
-          <div class="onboarding-feature-row">
-            <span class="onboarding-feature">📚 60 Lesson</span>
-            <span class="onboarding-feature">🧪 Playground</span>
-            <span class="onboarding-feature">🏆 Achievement</span>
-          </div>
-        </div>
-        <div
-          id="onboarding-step-2"
-          class="onboarding-step"
-          style="display: none"
-        >
-          <div class="onboarding-emoji"><span class="emoji-wave">👋</span></div>
-          <h2 class="onboarding-step2-title">Siapa namamu?</h2>
-          <p class="onboarding-step2-sub">
-            Kami akan menyapa kamu setiap hari!
-          </p>
-          <div class="onboarding-input-group">
-            <label class="sr-only" for="input-username">Nama kamu</label>
-            <input
-              type="text"
-              id="input-username"
-              class="input-field onboarding-name-input"
-              placeholder="Masukkan namamu..."
-              maxlength="30"
-              autocomplete="name"
-              aria-describedby="onboarding-name-hint"
-              aria-invalid="false"
-            />
-            <button
-              id="btn-onboarding-continue"
-              class="btn btn-primary onboarding-cta"
-            >
-              Lanjutkan →
-            </button>
-          </div>
-          <p class="onboarding-hint" id="onboarding-name-hint">
-            🔒 Nama hanya disimpan di perangkat kamu.
-          </p>
-          <p
-            class="field-error"
-            id="onboarding-name-error"
-            role="alert"
-            aria-live="polite"
-          ></p>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>PintuKoding — Belajar. Ngoding. Berkembang.</title>
+  <script>
+    // Mencegah layar berkedip putih saat reload dalam Mode Gelap
+    (function () {
+      try {
+        var t = localStorage.getItem("pk_theme");
+        if (
+          t === "dark" ||
+          (!t &&
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) { }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
+    rel="stylesheet" media="print" onload="this.media = 'all'" />
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
+      rel="stylesheet" />
+  </noscript>
+  <link rel="stylesheet" href="src/css/style.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="stylesheet" href="src/css/dashboard.css" />
+  <link rel="stylesheet" href="src/css/lesson.css" />
+  <link rel="stylesheet" href="src/css/editor.css" />
+  <link rel="stylesheet" href="src/css/responsive.css" />
+  <link rel="stylesheet" href="src/css/onboarding.css" />
+</head>
+
+<body>
+  <!-- ===== ONBOARDING ===== -->
+  <div id="view-onboarding" class="view view-onboarding active">
+    <div class="onboarding-bg-decoration">
+      <div class="deco-circle deco-1"></div>
+      <div class="deco-circle deco-2"></div>
+      <div class="deco-circle deco-3"></div>
+      <div class="deco-code" aria-hidden="true">
+        <span>&lt;html&gt;</span><span>&lt;body&gt;</span><span>&lt;h1&gt;</span><span>&lt;p&gt;</span><span>&lt;div&gt;</span><span>&lt;a&gt;</span><span>&lt;/div&gt;</span><span>&lt;img&gt;</span><span>&lt;li&gt;</span><span>&lt;/h1&gt;</span><span>&lt;button&gt;</span><span>&lt;/a&gt;</span><span>&lt;span&gt;</span><span>&lt;/body&gt;</span><span>&lt;/html&gt;</span><span>&lt;section&gt;</span><span>&lt;input&gt;</span><span>&lt;form&gt;</span><span>&lt;ul&gt;</span><span>&lt;nav&gt;</span><span>&lt;/p&gt;</span>
       </div>
     </div>
-
-    <!-- ===== MAIN APP SHELL ===== -->
-    <div id="app-shell" class="view" style="display: none">
-      <!-- Sidebar -->
-      <aside id="sidebar">
-        <div class="sidebar-logo">
-          <span class="logo-icon">🚪</span>
-          <span class="logo-text">PintuKoding</span>
+    <div class="onboarding-container">
+      <div id="onboarding-step-1" class="onboarding-step">
+        <div class="onboarding-logo">
+          <span class="logo-door">🚪</span>
+          <span class="logo-glow" aria-hidden="true"></span>
         </div>
-        <nav id="sidebar-nav">
-          <a class="nav-item active" data-view="dashboard" href="#">
-            <span class="nav-icon">🏠</span
-            ><span class="nav-label">Beranda</span>
-          </a>
-          <a class="nav-item" data-view="learning-path" href="#">
-            <span class="nav-icon">📚</span
-            ><span class="nav-label">Belajar</span>
-          </a>
-          <a class="nav-item" data-view="progress" href="#">
-            <span class="nav-icon">📊</span
-            ><span class="nav-label">Progress</span>
-          </a>
-          <a class="nav-item" data-view="achievements" href="#">
-            <span class="nav-icon">🏆</span
-            ><span class="nav-label">Achievement</span>
-          </a>
-          <a class="nav-item" data-view="playground" href="#">
-            <span class="nav-icon">🧪</span
-            ><span class="nav-label">Playground</span>
-          </a>
-          <a class="nav-item" data-view="profile" href="#">
-            <span class="nav-icon">👤</span
-            ><span class="nav-label">Profile</span>
-          </a>
-        </nav>
-        <div class="sidebar-stats">
-          <div class="sidebar-stat sidebar-stat-primary">
-            <span>⭐</span>
-            <span id="xp-value">0</span>
-            <span>XP</span>
-          </div>
-          <div class="sidebar-stat">
-            <div id="hearts-display">❤️❤️❤️❤️❤️</div>
-            <span id="hearts-count">5/5</span>
-          </div>
-          <div class="sidebar-stat">
-            <span>🔥</span>
-            <span id="streak-value">0</span>
-            <span>Hari</span>
-          </div>
-          <div
-            id="heart-timer-sidebar"
-            class="heart-timer"
-            style="display: none"
-          >
-            <span class="heart-timer-label">Next ❤️</span>
-            <span id="heart-timer-display-sidebar">03:00:00</span>
-          </div>
+        <div class="onboarding-badge">GRATIS 100% · KURIKULUM PEMULA</div>
+        <h1 class="onboarding-title">
+          Pintu<span class="onboarding-title-accent">Koding</span>
+        </h1>
+        <p class="onboarding-tagline">
+          <span>Belajar.</span>
+          <span>Ngoding.</span>
+          <span>Berkembang.</span>
+        </p>
+        <p class="onboarding-desc">
+          Belajar HTML dari nol sampai bisa membuat website — lewat materi
+          interaktif, latihan langsung di editor, dan XP sebagai reward.
+        </p>
+        <button id="btn-onboarding-start" class="btn btn-primary btn-lg onboarding-cta">
+          <span class="cta-arrow">▶</span>
+          <span>Mulai Belajar Sekarang</span>
+          <span class="cta-arrow">→</span>
+        </button>
+        <div class="onboarding-feature-row">
+          <span class="onboarding-feature">📚 60 Lesson Terstruktur</span>
+          <span class="onboarding-feature">🧪 Live Playground</span>
+          <span class="onboarding-feature">🏆 Sistem Achievement</span>
         </div>
-      </aside>
-
-      <!-- Main Content -->
-      <main id="main-content">
-        <!-- Mobile top bar -->
-        <div id="mobile-top-bar">
-          <div class="mobile-logo">🚪 <span>PintuKoding</span></div>
-          <div class="mobile-stats">
-            <span id="mob-level">🎓 <span id="level-value-mob">1</span></span>
-            <span id="mob-xp">⭐ <span id="xp-value-mob">0</span></span>
-            <span id="mob-hearts"
-              ><span id="hearts-display-mob">❤️❤️❤️❤️❤️</span></span
-            >
-            <span id="mob-streak">🔥 <span id="streak-value-mob">0</span></span>
-          </div>
+      </div>
+      <div id="onboarding-step-2" class="onboarding-step" style="display: none">
+        <div class="onboarding-emoji"><span class="emoji-wave">👋</span></div>
+        <h2 class="onboarding-step2-title">Siapa namamu?</h2>
+        <p class="onboarding-step2-sub">
+          Kami akan menyiapkan ruang belajarmu setiap hari.
+        </p>
+        <div class="onboarding-input-group">
+          <label class="sr-only" for="input-username">Nama kamu</label>
+          <input type="text" id="input-username" class="input-field onboarding-name-input"
+            placeholder="Ketik namamu di sini..." maxlength="30" autocomplete="name"
+            aria-describedby="onboarding-name-hint" aria-invalid="false" />
+          <button id="btn-onboarding-continue" class="btn btn-primary onboarding-cta">
+            Masuk ke Dashboard →
+          </button>
         </div>
+        <p class="onboarding-hint" id="onboarding-name-hint">
+          🔒 Data progres tersimpan aman langsung di perangkatmu.
+        </p>
+        <p class="field-error" id="onboarding-name-error" role="alert" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
 
-        <!-- Dashboard -->
-        <div id="view-dashboard" class="content-view active">
-          <div
-            id="daily-bonus-banner"
-            class="daily-bonus-banner"
-            style="display: none"
-          >
-            <span>🎁 Daily Bonus! Heart kamu sudah diisi kembali.</span>
-            <button
-              class="banner-close"
-              onclick="this.parentElement.style.display = 'none'"
-            >
-              ✕
-            </button>
-          </div>
-          <div class="dashboard-hero">
-            <div class="hero-content">
-              <p class="hero-greeting" id="dashboard-greeting">Halo! 👋</p>
-              <h1 class="hero-title">Belajar HTML dari Nol</h1>
-              <p class="hero-subtitle">
-                Pelajari HTML melalui materi interaktif, latihan coding, dan
-                project sederhana.
-              </p>
-              <div class="hero-actions">
-                <button id="btn-start-learning" class="btn btn-primary btn-lg">
-                  ▶ Mulai Belajar
-                </button>
-                <button
-                  id="btn-continue-learning"
-                  class="btn btn-outline btn-lg"
-                  style="display: none"
-                >
-                  ▶ Lanjutkan Belajar
-                </button>
-              </div>
-            </div>
-            <div class="hero-visual">
-              <div class="hero-code-card">
-                <div class="code-card-header">
-                  <span class="dot dot-red"></span>
-                  <span class="dot dot-yellow"></span>
-                  <span class="dot dot-green"></span>
-                  <span class="code-card-title">index.html</span>
-                </div>
-                <div class="code-card-body">
-                  <div class="code-line">
-                    <span class="c-tag">&lt;h1&gt;</span
-                    ><span class="c-text">Hello World</span
-                    ><span class="c-tag">&lt;/h1&gt;</span>
-                  </div>
-                  <div class="code-line">
-                    <span class="c-tag">&lt;p&gt;</span
-                    ><span class="c-text">Saya bisa coding!</span
-                    ><span class="c-tag">&lt;/p&gt;</span>
-                  </div>
-                  <div class="code-line">
-                    <span class="c-tag">&lt;a </span
-                    ><span class="c-attr">href</span
-                    ><span class="c-tag">="#"&gt;</span
-                    ><span class="c-text">Klik saya</span
-                    ><span class="c-tag">&lt;/a&gt;</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="dashboard-stats-row">
-            <div class="stat-card stat-card-level">
-              <div class="stat-icon">🎓</div>
-              <div class="stat-value" id="dash-level">1</div>
-              <div class="stat-label">Level</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">⭐</div>
-              <div class="stat-value" id="dash-xp">0</div>
-              <div class="stat-label">Total XP</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">📚</div>
-              <div class="stat-value" id="dash-lessons">0/60</div>
-              <div class="stat-label">Lesson</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">🔥</div>
-              <div class="stat-value" id="dash-streak">0</div>
-              <div class="stat-label">Hari Streak</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">❤️</div>
-              <div class="stat-value" id="dash-hearts">5/5</div>
-              <div class="stat-label">Heart</div>
-            </div>
-          </div>
-
-          <div class="dashboard-progress-section">
-            <div class="section-header">
-              <h3>Progress HTML Kamu</h3>
-              <span id="dash-progress-text">0%</span>
-            </div>
-            <div class="progress-track">
-              <div
-                class="progress-fill"
-                id="dash-progress-bar"
-                style="width: 0%"
-              ></div>
-            </div>
-          </div>
-
-          <div class="dashboard-recent">
-            <h3>Mulai dari Sini</h3>
-            <div id="dashboard-levels-preview" class="levels-preview-row">
-              <!-- Level preview cards injected by JS -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Learning Path -->
-        <div id="view-learning-path" class="content-view">
-          <div class="view-header">
-            <h2>🗺️ Learning Path</h2>
-            <p>Selesaikan setiap level untuk membuka level berikutnya.</p>
-          </div>
-          <div id="learning-path-container" class="learning-path-grid">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-
-        <!-- Lesson View -->
-        <div id="view-lesson" class="content-view lesson-view">
-          <div id="lesson-header" class="lesson-header">
-            <button id="btn-exit-lesson" class="btn-exit">✕</button>
-            <div class="lesson-header-info">
-              <span id="lesson-level-badge" class="level-badge">Level 1</span>
-              <span id="lesson-title-label" class="lesson-title-label"
-                >Apa Itu HTML?</span
-              >
-            </div>
-            <div class="lesson-progress-bar">
-              <div
-                id="lesson-progress-fill"
-                class="lesson-progress-fill"
-                style="width: 0%"
-              ></div>
-            </div>
-            <div id="lesson-step-indicator" class="lesson-step-indicator">
-              1 / 10
-            </div>
-          </div>
-
-          <div id="lesson-body" class="lesson-body">
-            <!-- Slide content rendered here by JS -->
-          </div>
-
-          <div id="lesson-footer" class="lesson-footer">
-            <div class="lesson-footer-left">
-              <button id="btn-prev-slide" class="btn btn-ghost">
-                ← Kembali
-              </button>
-            </div>
-            <div class="lesson-footer-center">
-              <div id="lesson-hearts-indicator" class="hearts-indicator">
-                <span id="lesson-hearts-display">❤️❤️❤️❤️❤️</span>
-              </div>
-            </div>
-            <div class="lesson-footer-right">
-              <button
-                id="btn-check-answer"
-                class="btn btn-primary"
-                style="display: none"
-              >
-                ✓ Check <kbd>↵</kbd>
-              </button>
-              <button id="btn-next-slide" class="btn btn-primary">
-                Lanjut → <kbd>↵</kbd>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Progress -->
-        <div id="view-progress" class="content-view">
-          <div class="view-header">
-            <div>
-              <h2>📊 Progress Saya</h2>
-              <p class="view-header-subtitle">
-                Lihat perkembangan belajar, project, dan level kamu.
-              </p>
-            </div>
-          </div>
-          <div id="progress-container" class="progress-container">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-
-        <!-- Achievements -->
-        <div id="view-achievements" class="content-view">
-          <div class="view-header">
-            <h2>🏆 Achievement</h2>
-            <p>Kumpulkan badge dengan menyelesaikan tantangan!</p>
-          </div>
-          <div id="achievements-grid" class="achievements-grid">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-
-        <!-- Playground -->
-        <div id="view-playground" class="content-view">
-          <div class="view-header">
-            <div>
-              <h2>🧪 Code Playground</h2>
-              <p>
-                Eksperimen bebas dengan HTML. Tidak mempengaruhi XP atau
-                progress.
-              </p>
-            </div>
-          </div>
-          <div class="playground-editor-layout">
-            <div class="editor-panel">
-              <div class="editor-toolbar">
-                <span class="editor-lang-badge">HTML</span>
-                <div class="editor-actions">
-                  <button
-                    id="btn-playground-run"
-                    class="btn btn-primary btn-sm"
-                  >
-                    ▶ Run <kbd>Shift+↵</kbd>
-                  </button>
-                  <button
-                    id="btn-playground-reset"
-                    class="btn btn-outline btn-sm"
-                  >
-                    ↺ Reset
-                  </button>
-                </div>
-              </div>
-              <div class="code-editor-wrapper" id="playground-editor-wrapper">
-                <div class="line-numbers" id="playground-line-numbers">1</div>
-                <textarea
-                  id="playground-editor"
-                  class="code-editor-textarea"
-                  spellcheck="false"
-                  autocorrect="off"
-                  autocapitalize="off"
-                ></textarea>
-              </div>
-            </div>
-            <div class="preview-panel">
-              <div class="editor-toolbar">
-                <span class="editor-lang-badge">Preview</span>
-              </div>
-              <iframe
-                id="playground-preview"
-                class="preview-iframe"
-                title="Preview kode HTML di Playground"
-                sandbox="allow-scripts allow-modals"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-
-        <!-- Profile -->
-        <div id="view-profile" class="content-view">
-          <div class="view-header">
-            <div>
-              <h2>👤 Profile</h2>
-              <p class="view-header-subtitle">
-                Kelola nama dan progress belajar kamu.
-              </p>
-            </div>
-          </div>
-          <div id="profile-container" class="profile-layout">
-            <div class="profile-card">
-              <div class="profile-avatar">👤</div>
-              <h2 class="profile-username" id="profile-name">Pengguna</h2>
-              <div class="profile-badges-row">
-                <span class="profile-badge"
-                  >⭐ <span id="profile-xp">0</span> XP</span
-                >
-                <span class="profile-badge"
-                  >🔥 <span id="profile-streak">0</span> Hari</span
-                >
-                <span class="profile-badge"
-                  >❤️ <span id="profile-hearts">5</span>/5</span
-                >
-              </div>
-              <div class="profile-progress-section">
-                <div class="section-header">
-                  <span>HTML Progress</span>
-                  <span id="profile-progress-text">0%</span>
-                </div>
-                <div class="progress-track">
-                  <div
-                    class="progress-fill"
-                    id="profile-progress-bar"
-                    style="width: 0%"
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <div class="profile-actions-card">
-              <button id="btn-edit-name" class="btn btn-outline btn-block">
-                ✏️ Edit Nama
-              </button>
-              <button id="btn-reset-progress" class="btn btn-danger btn-block">
-                🗑️ Reset Progress
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <!-- Bottom Navigation (mobile). Lives INSIDE #app-shell so it is not shown over the onboarding screen. -->
-      <nav id="bottom-nav">
-        <a class="bottom-nav-item active" data-view="dashboard" href="#">
-          <span class="bnav-icon">🏠</span>
-          <span class="bnav-label">Home</span>
+  <!-- ===== MAIN APP SHELL ===== -->
+  <div id="app-shell" class="view" style="display: none">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">🚪</span>
+        <span class="logo-text">PintuKoding</span>
+      </div>
+      <nav id="sidebar-nav">
+        <a class="nav-item active" data-view="dashboard" href="#">
+          <span class="nav-icon">🏠</span><span class="nav-label">Beranda</span>
         </a>
-        <a class="bottom-nav-item" data-view="learning-path" href="#">
-          <span class="bnav-icon">📚</span>
-          <span class="bnav-label">Belajar</span>
+        <a class="nav-item" data-view="learning-path" href="#">
+          <span class="nav-icon">📚</span><span class="nav-label">Belajar</span>
         </a>
-        <a class="bottom-nav-item" data-view="progress" href="#">
-          <span class="bnav-icon">📊</span>
-          <span class="bnav-label">Progress</span>
+        <a class="nav-item" data-view="progress" href="#">
+          <span class="nav-icon">📊</span><span class="nav-label">Progress</span>
         </a>
-        <a class="bottom-nav-item" data-view="achievements" href="#">
-          <span class="bnav-icon">🏆</span>
-          <span class="bnav-label">Badge</span>
+        <a class="nav-item" data-view="achievements" href="#">
+          <span class="nav-icon">🏆</span><span class="nav-label">Achievement</span>
         </a>
-        <a class="bottom-nav-item" data-view="playground" href="#">
-          <span class="bnav-icon">🧪</span>
-          <span class="bnav-label">Playground</span>
+        <a class="nav-item" data-view="playground" href="#">
+          <span class="nav-icon">🧪</span><span class="nav-label">Playground</span>
         </a>
-        <a class="bottom-nav-item" data-view="profile" href="#">
-          <span class="bnav-icon">👤</span>
-          <span class="bnav-label">Profile</span>
+        <a class="nav-item" data-view="profile" href="#">
+          <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
         </a>
       </nav>
-    </div>
 
-    <!-- Modal Overlay -->
-    <div
-      id="modal-overlay"
-      class="modal-overlay"
-      role="presentation"
-      style="display: none"
-    >
-      <div
-        id="modal-content"
-        class="modal-content"
-        role="dialog"
-        aria-modal="true"
-        aria-live="polite"
-      >
-        <!-- Dynamic modal content -->
+      <div class="sidebar-stats">
+        <!-- Tombol Mode Gelap / Terang -->
+        <button id="btn-theme-toggle" class="theme-toggle-btn" type="button" title="Ubah Tema Tampilan">
+          <span id="theme-toggle-icon">🌙</span>
+          <span id="theme-toggle-label">Mode Gelap</span>
+        </button>
+
+        <div class="sidebar-stat sidebar-stat-primary">
+          <span>⭐ XP</span>
+          <span id="xp-value">0</span>
+        </div>
+        <div id="sidebar-heart-stat" class="sidebar-stat sidebar-stat-clickable"
+          title="Klik untuk isi ulang Heart dengan XP">
+          <div id="hearts-display">❤️❤️❤️❤️❤️</div>
+          <span id="hearts-count">5/5</span>
+        </div>
+        <button id="btn-sidebar-buy-heart" class="btn-buy-heart-pill" type="button" style="display: none">
+          <span>⚡ Isi Heart</span>
+          <span class="buy-heart-cost">50 ⭐</span>
+        </button>
+        <div class="sidebar-stat">
+          <span>🔥 Streak</span>
+          <div><span id="streak-value">0</span> <span>Hari</span></div>
+        </div>
+        <div id="heart-timer-sidebar" class="heart-timer" style="display: none">
+          <span class="heart-timer-label">Next ❤️</span>
+          <span id="heart-timer-display-sidebar">00:30:00</span>
+        </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- Toast -->
-    <div
-      id="toast"
-      class="toast-notification"
-      role="status"
-      aria-live="polite"
-    ></div>
+    <!-- Main Content -->
+    <main id="main-content">
+      <!-- Mobile top bar -->
+      <div id="mobile-top-bar">
+        <div class="mobile-logo">🚪 <span>PintuKoding</span></div>
+        <div class="mobile-stats">
+          <span id="mob-level">🎓 <span id="level-value-mob">1</span></span>
+          <span id="mob-xp">⭐ <span id="xp-value-mob">0</span></span>
+          <span id="mob-hearts" class="mob-hearts-clickable" title="Klik untuk isi ulang Heart"><span
+              id="hearts-display-mob">❤️❤️❤️❤️❤️</span> ➕</span>
+          <span id="mob-streak">🔥 <span id="streak-value-mob">0</span></span>
+          <button id="btn-theme-toggle-mob" class="mob-theme-btn" type="button" title="Ubah Tema">
+            🌙
+          </button>
+        </div>
+      </div>
 
-    <!-- Shortcut hint modal -->
-    <div id="shortcut-modal" class="shortcut-modal" style="display: none">
-      <div class="shortcut-modal-inner">
-        <div class="shortcut-modal-header">
-          <h3>⌨️ Keyboard Shortcuts</h3>
-          <button
-            onclick="
-              document.getElementById('shortcut-modal').style.display = 'none'
-            "
-          >
+      <!-- Dashboard -->
+      <div id="view-dashboard" class="content-view active">
+        <div id="daily-bonus-banner" class="daily-bonus-banner" style="display: none">
+          <span>🎁 Daily Bonus! Heart kamu sudah diisi kembali.</span>
+          <button class="banner-close" onclick="this.parentElement.style.display = 'none'">
             ✕
           </button>
         </div>
-        <div class="shortcut-list">
-          <div class="shortcut-item">
-            <kbd>Enter</kbd> <span>Check / Lanjut</span>
+        <div class="dashboard-hero">
+          <div class="hero-content">
+            <p class="hero-greeting" id="dashboard-greeting">Halo! 👋</p>
+            <h1 class="hero-title">Belajar HTML dari Nol</h1>
+            <p class="hero-subtitle">
+              Pelajari pondasi web melalui materi interaktif, tantangan kode
+              langsung, dan mini-project bertahap.
+            </p>
+            <div class="hero-actions">
+              <button id="btn-start-learning" class="btn btn-primary btn-lg">
+                ▶ Mulai Belajar
+              </button>
+              <button id="btn-continue-learning" class="btn btn-outline btn-lg" style="display: none">
+                ▶ Lanjutkan Belajar
+              </button>
+            </div>
           </div>
-          <div class="shortcut-item">
-            <kbd>Ctrl+Enter</kbd> <span>Check Code</span>
+          <div class="hero-visual">
+            <div class="hero-code-card">
+              <div class="code-card-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="code-card-title">index.html</span>
+              </div>
+              <div class="code-card-body">
+                <div class="code-line">
+                  <span class="c-tag">&lt;h1&gt;</span><span class="c-text">Hello World</span><span
+                    class="c-tag">&lt;/h1&gt;</span>
+                </div>
+                <div class="code-line">
+                  <span class="c-tag">&lt;p&gt;</span><span class="c-text">Saya bisa coding!</span><span
+                    class="c-tag">&lt;/p&gt;</span>
+                </div>
+                <div class="code-line">
+                  <span class="c-tag">&lt;a </span><span class="c-attr">href</span><span
+                    class="c-tag">="#"&gt;</span><span class="c-text">Klik saya</span><span
+                    class="c-tag">&lt;/a&gt;</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="shortcut-item">
-            <kbd>Shift+Enter</kbd> <span>Run Preview</span>
+        </div>
+
+        <div class="dashboard-stats-row">
+          <div class="stat-card stat-card-level">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-value" id="dash-level">1</div>
+            <div class="stat-label">Level Saat Ini</div>
           </div>
-          <div class="shortcut-item">
-            <kbd>1–4</kbd> <span>Pilihan Ganda</span>
+          <div class="stat-card stat-card-xp">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="dash-xp">0</div>
+            <div class="stat-label">Total XP</div>
           </div>
-          <div class="shortcut-item">
-            <kbd>↑↓</kbd> <span>Navigasi Pilihan</span>
+          <div class="stat-card stat-card-lessons">
+            <div class="stat-icon">📚</div>
+            <div class="stat-value" id="dash-lessons">0/60</div>
+            <div class="stat-label">Lesson Selesai</div>
           </div>
-          <div class="shortcut-item">
-            <kbd>Esc</kbd> <span>Tutup Modal</span>
+          <div class="stat-card stat-card-streak">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value" id="dash-streak">0</div>
+            <div class="stat-label">Hari Streak</div>
+          </div>
+          <div id="dash-card-hearts" class="stat-card stat-card-hearts card-interactive"
+            title="Klik untuk tukar XP jadi Heart">
+            <div class="stat-card-top-row">
+              <div class="stat-icon">❤️</div>
+              <span class="stat-action-pill">+ Isi</span>
+            </div>
+            <div class="stat-value" id="dash-hearts">5/5</div>
+            <div class="stat-label">Sisa Heart (Tukar XP)</div>
+          </div>
+        </div>
+
+        <div class="dashboard-progress-section">
+          <div class="section-header">
+            <h3>Progress Kurikulum HTML</h3>
+            <span id="dash-progress-text">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="dash-progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-recent">
+          <h3>Jalur Belajar</h3>
+          <div id="dashboard-levels-preview" class="levels-preview-row">
+            <!-- Level preview cards injected by JS -->
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Scripts -->
-    <script src="src/js/core/events.js"></script>
-    <script src="src/js/core/storage.js"></script>
-    <script src="src/js/core/state.js"></script>
-    <script src="src/js/gamification/hearts.js"></script>
-    <script src="src/js/gamification/xp.js"></script>
-    <script src="src/js/gamification/streak.js"></script>
-    <script src="src/js/gamification/achievements.js"></script>
-    <script src="src/js/gamification/progress.js"></script>
-    <script src="src/js/editor/validator.js"></script>
-    <script src="src/js/editor/sandbox.js"></script>
-    <script src="src/js/editor/editor.js"></script>
-    <script src="src/js/lessons/data.js"></script>
-    <script src="src/js/lessons/exercises.js"></script>
-    <script src="src/js/lessons/lessons.js"></script>
-    <script src="src/js/lessons/navigation.js"></script>
-    <script src="src/js/app.js"></script>
-    <!-- CodeMirror (syntax highlighting) is loaded in the background AFTER the app scripts.
-         A slow/blocked CDN must never freeze the app: editors fall back to a plain textarea
-         (see Editor.enhance) and the Playground upgrades itself when CodeMirror arrives. -->
-    <script>
-      (function () {
-        var BASE = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/";
-        var CSS = ["codemirror.min.css", "addon/fold/foldgutter.min.css"];
-        var JS = [
-          "codemirror.min.js",
-          "mode/xml/xml.min.js",
-          "mode/javascript/javascript.min.js",
-          "mode/css/css.min.js",
-          "mode/htmlmixed/htmlmixed.min.js",
-          "addon/edit/closetag.min.js",
-          "addon/edit/matchbrackets.min.js",
-          "addon/fold/xml-fold.min.js",
-          "addon/edit/matchtags.min.js",
-        ];
-        var pending = JS.length;
-        function settle() {
-          if (--pending > 0) return;
-          window.PKCodeMirrorReady = !!(
-            window.CodeMirror &&
-            window.CodeMirror.modes &&
-            window.CodeMirror.modes.htmlmixed
-          );
-          window.dispatchEvent(new Event("pk:codemirror-ready"));
-        }
-        CSS.forEach(function (href) {
-          var l = document.createElement("link");
-          l.rel = "stylesheet";
-          l.href = BASE + href;
-          document.head.appendChild(l);
-        });
-        JS.forEach(function (src) {
-          var el = document.createElement("script");
-          el.src = BASE + src;
-          el.async = false; // keep execution order (core -> modes -> addons)
-          el.onload = el.onerror = settle;
-          document.head.appendChild(el);
-        });
-      })();
-    </script>
-  </body>
+      <!-- Learning Path -->
+      <div id="view-learning-path" class="content-view">
+        <div class="view-header">
+          <div>
+            <h2>🗺️ Learning Path</h2>
+            <p>Selesaikan setiap level secara berurutan untuk membuka materi baru.</p>
+          </div>
+        </div>
+        <div id="learning-path-container" class="learning-path-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Lesson View -->
+      <div id="view-lesson" class="content-view lesson-view">
+        <div id="lesson-header" class="lesson-header">
+          <button id="btn-exit-lesson" class="btn-exit" title="Keluar">✕</button>
+          <div class="lesson-header-info">
+            <span id="lesson-level-badge" class="level-badge">Level 1</span>
+            <span id="lesson-title-label" class="lesson-title-label">Apa Itu HTML?</span>
+          </div>
+          <div class="lesson-progress-bar">
+            <div id="lesson-progress-fill" class="lesson-progress-fill" style="width: 0%"></div>
+          </div>
+          <div id="lesson-step-indicator" class="lesson-step-indicator">
+            1 / 10
+          </div>
+        </div>
+
+        <div id="lesson-body" class="lesson-body">
+          <!-- Slide content rendered here by JS -->
+        </div>
+
+        <div id="lesson-footer" class="lesson-footer">
+          <div class="lesson-footer-left">
+            <button id="btn-prev-slide" class="btn btn-ghost">
+              ← Kembali
+            </button>
+          </div>
+          <div class="lesson-footer-center">
+            <div id="lesson-hearts-indicator" class="hearts-indicator hearts-indicator-clickable"
+              title="Klik untuk isi ulang Heart dengan XP">
+              <span id="lesson-hearts-display">❤️❤️❤️❤️❤️</span>
+              <span class="hearts-plus-badge">+</span>
+            </div>
+          </div>
+          <div class="lesson-footer-right">
+            <button id="btn-check-answer" class="btn btn-primary" style="display: none">
+              ✓ Periksa <kbd>↵</kbd>
+            </button>
+            <button id="btn-next-slide" class="btn btn-primary">
+              Lanjut → <kbd>↵</kbd>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div id="view-progress" class="content-view">
+        <div class="view-header">
+          <div>
+            <h2>📊 Statistik & Progress</h2>
+            <p class="view-header-subtitle">
+              Pantau perkembangan belajar, proyek, dan ketuntasan tiap level.
+            </p>
+          </div>
+        </div>
+        <div id="progress-container" class="progress-container">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div id="view-achievements" class="content-view">
+        <div class="view-header">
+          <div>
+            <h2>🏆 Achievement</h2>
+            <p>Kumpulkan semua lencana dengan menuntaskan tantangan koding!</p>
+          </div>
+        </div>
+        <div id="achievements-grid" class="achievements-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Playground -->
+      <div id="view-playground" class="content-view">
+        <div class="view-header">
+          <div>
+            <h2>🧪 Code Playground</h2>
+            <p>
+              Ruang eksperimen bebas dengan HTML & CSS. Tidak mengurangi Heart atau XP.
+            </p>
+          </div>
+        </div>
+        <div class="playground-editor-layout">
+          <div class="editor-panel">
+            <div class="editor-toolbar">
+              <span class="editor-lang-badge">index.html</span>
+              <div class="editor-actions">
+                <button id="btn-playground-run" class="btn btn-primary btn-sm">
+                  ▶ Run <kbd>Shift+↵</kbd>
+                </button>
+                <button id="btn-playground-reset" class="btn btn-outline btn-sm">
+                  ↺ Reset
+                </button>
+              </div>
+            </div>
+            <div class="code-editor-wrapper" id="playground-editor-wrapper">
+              <div class="line-numbers" id="playground-line-numbers">1</div>
+              <textarea id="playground-editor" class="code-editor-textarea" spellcheck="false" autocorrect="off"
+                autocapitalize="off"></textarea>
+            </div>
+          </div>
+          <div class="preview-panel">
+            <div class="editor-toolbar">
+              <span class="editor-lang-badge">Live Output</span>
+            </div>
+            <iframe id="playground-preview" class="preview-iframe" title="Preview kode HTML di Playground"
+              sandbox="allow-scripts allow-modals"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div id="view-profile" class="content-view">
+        <div class="view-header">
+          <div>
+            <h2>👤 Profil Pelajar</h2>
+            <p class="view-header-subtitle">
+              Kelola identitas dan data penyimpanan belajarmu.
+            </p>
+          </div>
+        </div>
+        <div id="profile-container" class="profile-layout">
+          <div class="profile-card">
+            <div class="profile-avatar">👤</div>
+            <h2 class="profile-username" id="profile-name">Pengguna</h2>
+            <div class="profile-badges-row">
+              <span class="profile-badge">⭐ <span id="profile-xp">0</span> XP</span>
+              <span class="profile-badge">🔥 <span id="profile-streak">0</span> Hari</span>
+              <span class="profile-badge">❤️ <span id="profile-hearts">5</span>/5</span>
+            </div>
+            <div class="profile-progress-section">
+              <div class="section-header">
+                <span>Ketuntasan Materi HTML</span>
+                <span id="profile-progress-text">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="profile-progress-bar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="profile-actions-card">
+            <button class="btn btn-secondary btn-block" onclick="App.openHeartShopModal()">
+              ❤️ Toko Heart (Tukar XP)
+            </button>
+            <button id="btn-edit-name" class="btn btn-outline btn-block">
+              ✏️ Ubah Nama Tampilan
+            </button>
+            <button id="btn-reset-progress" class="btn btn-danger btn-block">
+              🗑️ Reset Semua Progress
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation (mobile) -->
+    <nav id="bottom-nav">
+      <a class="bottom-nav-item active" data-view="dashboard" href="#">
+        <span class="bnav-icon">🏠</span>
+        <span class="bnav-label">Home</span>
+      </a>
+      <a class="bottom-nav-item" data-view="learning-path" href="#">
+        <span class="bnav-icon">📚</span>
+        <span class="bnav-label">Belajar</span>
+      </a>
+      <a class="bottom-nav-item" data-view="progress" href="#">
+        <span class="bnav-icon">📊</span>
+        <span class="bnav-label">Progress</span>
+      </a>
+      <a class="bottom-nav-item" data-view="achievements" href="#">
+        <span class="bnav-icon">🏆</span>
+        <span class="bnav-label">Badge</span>
+      </a>
+      <a class="bottom-nav-item" data-view="playground" href="#">
+        <span class="bnav-icon">🧪</span>
+        <span class="bnav-label">Playground</span>
+      </a>
+      <a class="bottom-nav-item" data-view="profile" href="#">
+        <span class="bnav-icon">👤</span>
+        <span class="bnav-label">Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay" class="modal-overlay" role="presentation" style="display: none">
+    <div id="modal-content" class="modal-content" role="dialog" aria-modal="true" aria-live="polite">
+      <!-- Dynamic modal content -->
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
+
+  <!-- Shortcut hint modal -->
+  <div id="shortcut-modal" class="shortcut-modal" style="display: none">
+    <div class="shortcut-modal-inner">
+      <div class="shortcut-modal-header">
+        <h3>⌨️ Pintasan Keyboard</h3>
+        <button onclick="
+              document.getElementById('shortcut-modal').style.display = 'none'
+            ">
+          ✕
+        </button>
+      </div>
+      <div class="shortcut-list">
+        <div class="shortcut-item">
+          <kbd>Enter</kbd> <span>Periksa / Lanjut</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Ctrl+Enter</kbd> <span>Periksa Kode</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Shift+Enter</kbd> <span>Jalankan Preview</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>1–4</kbd> <span>Pilih Opsi Jawaban</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>↑↓</kbd> <span>Navigasi Pilihan</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Esc</kbd> <span>Tutup Jendela</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="src/js/core/events.js"></script>
+  <script src="src/js/core/storage.js"></script>
+  <script src="src/js/core/state.js"></script>
+  <script src="src/js/gamification/hearts.js"></script>
+  <script src="src/js/gamification/xp.js"></script>
+  <script src="src/js/gamification/streak.js"></script>
+  <script src="src/js/gamification/achievements.js"></script>
+  <script src="src/js/gamification/progress.js"></script>
+  <script src="src/js/editor/validator.js"></script>
+  <script src="src/js/editor/sandbox.js"></script>
+  <script src="src/js/editor/editor.js"></script>
+  <script src="src/js/lessons/data.js"></script>
+  <script src="src/js/lessons/exercises.js"></script>
+  <script src="src/js/lessons/lessons.js"></script>
+  <script src="src/js/lessons/navigation.js"></script>
+  <script src="src/js/app.js"></script>
+  <script>
+    (function () {
+      var BASE = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/";
+      var CSS = ["codemirror.min.css", "addon/fold/foldgutter.min.css"];
+      var JS = [
+        "codemirror.min.js",
+        "mode/xml/xml.min.js",
+        "mode/javascript/javascript.min.js",
+        "mode/css/css.min.js",
+        "mode/htmlmixed/htmlmixed.min.js",
+        "addon/edit/closetag.min.js",
+        "addon/edit/matchbrackets.min.js",
+        "addon/fold/xml-fold.min.js",
+        "addon/edit/matchtags.min.js",
+      ];
+      var pending = JS.length;
+      function settle() {
+        if (--pending > 0) return;
+        window.PKCodeMirrorReady = !!(
+          window.CodeMirror &&
+          window.CodeMirror.modes &&
+          window.CodeMirror.modes.htmlmixed
+        );
+        window.dispatchEvent(new Event("pk:codemirror-ready"));
+      }
+      CSS.forEach(function (href) {
+        var l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href = BASE + href;
+        document.head.appendChild(l);
+      });
+      JS.forEach(function (src) {
+        var el = document.createElement("script");
+        el.src = BASE + src;
+        el.async = false;
+        el.onload = el.onerror = settle;
+        document.head.appendChild(el);
+      });
+    })();
+  </script>
+</body>
+
 </html>

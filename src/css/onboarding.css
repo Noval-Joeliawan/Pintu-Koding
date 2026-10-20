@@ -1,74 +1,39 @@
 /* ============================================================
-   PintuKoding — Onboarding (halaman pertama)
-   Hero aurora + partikel kode mengambang + logo glow + CTA shine
+   PintuKoding — Onboarding (Crafted Architectural Studio)
    ============================================================ */
 
 .view-onboarding {
-  background: #060b13;
-  color: #fff;
+  background-color: #0b0f17;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow-y: auto;
 }
 
-/* --- Aurora: dua blob cahaya besar yang bergerak pelan ---
-   PENTING: pseudo-elemen ini harus selalu DI BELAKANG teks,
-   karena itu z-index: 0 dan container teks di-set relative z-index: 10. */
+/* Disable generic AI aurora blobs & blurry circles */
 .view-onboarding::before,
-.view-onboarding::after {
-  content: "";
+.view-onboarding::after,
+.deco-circle,
+.logo-glow {
+  display: none !important;
+}
+
+.onboarding-bg-decoration {
   position: absolute;
-  width: 55vmax;
-  height: 55vmax;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.16;
+  inset: 0;
+  overflow: hidden;
   z-index: 0;
   pointer-events: none;
-  animation: aurora-float 14s ease-in-out infinite alternate;
-}
-.view-onboarding::before {
-  background: radial-gradient(circle, rgba(33, 150, 243, 0.5), transparent 70%);
-  top: -20vmax;
-  left: -15vmax;
-}
-.view-onboarding::after {
-  background: radial-gradient(
-    circle,
-    rgba(102, 51, 204, 0.42),
-    transparent 70%
-  );
-  bottom: -22vmax;
-  right: -15vmax;
-  animation-delay: -7s;
-}
-@keyframes aurora-float {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(6vmax, 4vmax) scale(1.15);
-  }
 }
 
-/* --- Grid sangat halus + scrim tengah supaya teks kontras ---
-   Satu rule: background-image (grid) DIPISAH dari background-color
-   agar tidak saling menimpa. */
-.view-onboarding {
-  background-image:
-    radial-gradient(
-      ellipse 70% 60% at 50% 45%,
-      rgba(3, 6, 12, 0.85) 0%,
-      rgba(3, 6, 12, 0.4) 60%,
-      transparent 100%
-    ),
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size:
-    100% 100%,
-    44px 44px,
-    44px 44px;
-  background-position: center;
-}
-
-/* --- Partikel kode mengambang --- */
+/* Subtle architectural code watermarks */
 .deco-code {
   position: absolute;
   inset: 0;
@@ -76,29 +41,28 @@
   pointer-events: none;
   overflow: hidden;
 }
+
 .deco-code span {
   position: absolute;
   top: 100%;
   left: var(--x, 50%);
   font-family: "JetBrains Mono", monospace;
-  font-size: var(--s, 1rem);
-  color: rgba(144, 202, 249, 0.14);
+  font-size: var(--s, 0.9rem);
+  color: rgba(148, 163, 184, 0.07);
   white-space: nowrap;
-  animation: code-rise var(--d, 18s) linear infinite;
+  animation: code-rise var(--d, 24s) linear infinite;
   animation-delay: var(--dl, 0s);
 }
-.deco-code span:nth-child(odd) {
-  color: rgba(33, 150, 243, 0.16);
-}
+
 @keyframes code-rise {
   0% {
     transform: translateY(0);
     opacity: 0;
   }
-  8% {
+  10% {
     opacity: 1;
   }
-  92% {
+  90% {
     opacity: 1;
   }
   100% {
@@ -107,134 +71,98 @@
   }
 }
 
-/* --- Dekorasi (lingkaran + partikel kode) SELALU di belakang konten --- */
-.onboarding-bg-decoration {
-  z-index: 0;
-}
-
-/* Container teks harus positioned agar z-index bekerja,
-   tanpa ini dekorasi absolute menutupi tulisan (bug lama). */
+/* Main Structured Card */
 .onboarding-container {
   position: relative;
   z-index: 10;
+  max-width: 520px;
+  width: 92%;
+  margin: auto;
+  padding: 2.75rem 2.25rem;
+  background: #111827;
+  border: 2px solid #334155;
+  box-shadow: 0 10px 0 #05080f;
+  border-radius: 22px;
+  text-align: center;
 }
 
-/* --- Logo dengan glow pulsing --- */
-.onboarding-logo {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1.25rem;
-  animation: step-in 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+.onboarding-step {
+  animation: step-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.logo-door {
-  position: relative;
-  z-index: 2;
-  font-size: 4.5rem;
-  display: inline-block;
-  filter: drop-shadow(0 8px 24px rgba(33, 150, 243, 0.45));
-  animation: door-float 3.5s ease-in-out infinite;
-}
-@keyframes door-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-3deg);
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
-  50% {
-    transform: translateY(-10px) rotate(3deg);
-  }
-}
-.logo-glow {
-  position: absolute;
-  inset: -40%;
-  z-index: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(33, 150, 243, 0.5) 0%,
-    rgba(33, 150, 243, 0) 70%
-  );
-  animation: glow-pulse 2.4s ease-in-out infinite;
-}
-@keyframes glow-pulse {
-  0%,
-  100% {
-    transform: scale(0.85);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.15);
+  to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* --- Badge mini di atas judul --- */
+/* Tactile Logo Box */
+.onboarding-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 1.25rem;
+  background: #1e293b;
+  border: 2px solid #475569;
+  box-shadow: 0 5px 0 #090d16;
+  border-radius: 18px;
+}
+
+.logo-door {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+/* Crisp Pill Badge */
 .onboarding-badge {
   display: inline-block;
   margin-bottom: 1rem;
-  padding: 0.4rem 1rem;
+  padding: 0.35rem 0.9rem;
   border-radius: var(--pk-radius-pill);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #b3e5fc;
-  background: rgba(33, 150, 243, 0.18);
-  border: 1px solid rgba(33, 150, 243, 0.35);
-  backdrop-filter: blur(6px);
-  animation: step-in 0.6s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #a5b4fc;
+  background: rgba(79, 70, 229, 0.18);
+  border: 1.5px solid rgba(129, 140, 248, 0.35);
 }
 
-/* --- Judul: "Pintu" putih + "Koding" gradient animasi --- */
+/* High-Contrast Typography (No rainbow animated gradient) */
 .onboarding-title {
-  color: #fff;
-  font-size: 3.4rem;
+  color: #ffffff;
+  font-size: 3rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.75rem;
-  animation: step-in 0.6s 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-.onboarding-title-accent {
-  background: linear-gradient(90deg, #64b5f6, #b3e5fc, #e1bee7, #64b5f6);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  /* Fallback kalau browser tidak mendukung gradient text:
-     tanpa clip, warna gradient jadi background block yang menutupi teks.
-     Deteksi: kalau tidak ada dukungan background-clip, pakai warna solid. */
-  animation: gradient-shift 6s linear infinite;
-}
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .onboarding-title-accent {
-    background: none;
-    color: #64b5f6;
-    -webkit-text-fill-color: #64b5f6;
-  }
-}
-@keyframes gradient-shift {
-  from {
-    background-position: 0% 0;
-  }
-  to {
-    background-position: 300% 0;
-  }
+  letter-spacing: -0.035em;
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
 }
 
-/* --- Tagline: kata muncul satu-satu --- */
+.onboarding-title-accent {
+  color: #818cf8;
+}
+
 .onboarding-tagline {
   display: flex;
   justify-content: center;
   gap: 0.75rem;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  color: #b3e5fc;
+  color: #94a3b8;
   margin-bottom: 1.25rem;
-  animation: step-in 0.6s 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
 }
+
 .onboarding-tagline span {
   position: relative;
   padding-right: 0.75rem;
 }
+
 .onboarding-tagline span:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -244,210 +172,160 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--pk-blue);
+  background: #4f46e5;
 }
 
 .onboarding-desc {
-  color: #e3f2fd;
-  max-width: 26rem;
-  margin: 0 auto 2.25rem;
-  line-height: 1.7;
-  animation: step-in 0.6s 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  color: #cbd5e1;
+  font-size: 0.98rem;
+  max-width: 38ch;
+  margin: 0 auto 2rem;
+  line-height: 1.65;
 }
 
-/* --- CTA button dengan shine + glow --- */
+/* Tactile Mechanical CTA Button */
 .onboarding-cta {
-  position: relative;
-  overflow: hidden;
+  width: 100%;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
-  font-size: 1.05rem;
-  padding: 1rem 2.5rem;
-  border-radius: var(--pk-radius-pill);
-  background: linear-gradient(135deg, var(--pk-blue) 0%, #1565c0 100%);
-  box-shadow:
-    0 8px 30px rgba(33, 150, 243, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  font-size: 1.02rem;
+  padding: 0.95rem 2rem;
+  border-radius: 12px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: 2px solid #3730a3;
+  box-shadow: 0 5px 0 #312e81;
   transition:
-    transform var(--transition),
-    box-shadow var(--transition);
-  animation: step-in 0.6s 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-.onboarding-cta:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow:
-    0 14px 40px rgba(33, 150, 243, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-.onboarding-cta:active {
-  transform: translateY(0) scale(0.98);
-}
-.cta-arrow:last-child {
-  animation: arrow-nudge 1.6s ease-in-out infinite;
-}
-@keyframes arrow-nudge {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(4px);
-  }
-}
-/* Shine yang menyapu lewat tombol */
-.onboarding-cta::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -80%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    105deg,
-    transparent,
-    rgba(255, 255, 255, 0.35),
-    transparent
-  );
-  transform: skewX(-20deg);
-  animation: cta-shine 3.2s ease-in-out infinite;
-  animation-delay: 1s;
-}
-@keyframes cta-shine {
-  0% {
-    left: -80%;
-  }
-  45%,
-  100% {
-    left: 140%;
-  }
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background-color 0.15s ease;
 }
 
-/* --- Feature chips --- */
+.onboarding-cta:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 #312e81;
+}
+
+.onboarding-cta:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #312e81;
+}
+
+/* Feature Row Chips */
 .onboarding-feature-row {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 2rem;
-  animation: step-in 0.6s 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #1e293b;
 }
+
 .onboarding-feature {
-  padding: 0.35rem 0.9rem;
-  border-radius: var(--pk-radius-pill);
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: #eceff1;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(4px);
+  padding: 0.35rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: #1e293b;
+  border: 1px solid #334155;
 }
 
-/* ===== STEP 2: halaman masukan nama ===== */
-.onboarding-step {
-  animation: step-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-@keyframes step-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
+/* ===== STEP 2: Input Nama ===== */
 .onboarding-emoji {
-  margin-bottom: 0.75rem;
+  display: inline-grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: 1rem;
+  background: #1e293b;
+  border: 2px solid #475569;
+  border-radius: 16px;
 }
+
 .emoji-wave {
-  display: inline-block;
-  font-size: 4rem;
-  transform-origin: 70% 70%;
-  animation: emoji-wave 2.2s ease-in-out infinite;
-  filter: drop-shadow(0 8px 24px rgba(33, 150, 243, 0.4));
-}
-@keyframes emoji-wave {
-  0%,
-  60%,
-  100% {
-    transform: rotate(0deg);
-  }
-  10%,
-  30% {
-    transform: rotate(-14deg);
-  }
-  20%,
-  40% {
-    transform: rotate(12deg);
-  }
+  font-size: 2.25rem;
 }
 
 .onboarding-step2-title {
-  color: #fff;
-  font-size: 2.1rem;
+  color: #ffffff;
+  font-size: 2rem;
   margin-bottom: 0.35rem;
 }
+
 .onboarding-step2-sub {
-  color: #cfd8dc;
-  margin-bottom: 2rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+}
+
+.onboarding-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0 1rem;
 }
 
 .onboarding-name-input {
   width: 100%;
-  padding: 1rem 1.25rem;
+  padding: 0.95rem 1.25rem;
   font-size: 1.05rem;
+  font-weight: 600;
   text-align: center;
-  border-radius: var(--pk-radius);
-  border: 1px solid rgba(144, 202, 249, 0.3);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 2px solid #475569;
+  background: #0b0f17;
+  color: #ffffff;
   transition:
     border-color var(--transition),
-    box-shadow var(--transition),
-    background var(--transition);
-  animation: step-in 0.5s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-.onboarding-name-input::placeholder {
-  color: rgba(144, 202, 249, 0.5);
-}
-.onboarding-name-input:focus {
-  outline: none;
-  border-color: var(--pk-blue);
-  background: rgba(33, 150, 243, 0.08);
-  box-shadow:
-    0 0 0 4px rgba(33, 150, 243, 0.18),
-    0 8px 24px rgba(33, 150, 243, 0.2);
+    box-shadow var(--transition);
 }
 
-.onboarding-input-group {
-  gap: 0.75rem;
+.onboarding-name-input::placeholder {
+  color: #64748b;
+  font-weight: 400;
 }
-.onboarding-input-group .onboarding-cta {
-  width: 100%;
-  justify-content: center;
-  animation-delay: 0.18s;
+
+.onboarding-name-input:focus {
+  outline: none;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
 }
 
 .onboarding-hint {
-  color: #b0bec5;
-  font-size: 0.85rem;
-  margin-top: 0.75rem;
-}
-
-/* Dekorasi lingkaran lama: sangat redup supaya tidak mengganggu teks */
-.deco-circle {
-  opacity: 0.35;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 480px) {
-  .onboarding-title {
-    font-size: 2.6rem;
+  .onboarding-container {
+    padding: 2rem 1.35rem;
   }
-  .onboarding-cta {
-    padding: 0.9rem 2rem;
-    font-size: 1rem;
+  .onboarding-title {
+    font-size: 2.35rem;
+  }
+}
+
+@media (max-height: 520px) {
+  .onboarding-container {
+    padding: 1.5rem;
+  }
+  .onboarding-logo,
+  .onboarding-emoji {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 0.5rem;
+  }
+  .logo-door,
+  .emoji-wave {
+    font-size: 1.75rem;
+  }
+  .onboarding-title {
+    font-size: 2rem;
   }
 }

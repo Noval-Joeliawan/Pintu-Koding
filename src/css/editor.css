@@ -1,12 +1,12 @@
-/* css/editor.css — Code Editor & Playground */
+/* css/editor.css — Code Editor & Playground (Crafted Studio Theme) */
 
 /* === PLAYGROUND LAYOUT === */
 .playground-editor-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  height: calc(100vh - 200px);
-  min-height: 400px;
+  gap: 1.25rem;
+  height: calc(100vh - 210px);
+  min-height: 420px;
 }
 
 .editor-panel,
@@ -15,13 +15,16 @@
   flex-direction: column;
   border-radius: var(--pk-radius);
   overflow: hidden;
-  border: 1px solid var(--pk-gray-200);
-  background: #1e2d3d;
+  border: 2px solid #1e293b;
+  box-shadow: 0 5px 0 rgba(15, 23, 42, 0.12);
+  background: #0f172a;
+  min-width: 0;
 }
 
 .preview-panel {
-  background: white;
-  border-color: var(--pk-border);
+  background: var(--pk-white);
+  border-color: var(--pk-border-strong);
+  box-shadow: 0 5px 0 var(--pk-border);
 }
 
 /* === TOOLBAR === */
@@ -29,26 +32,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  background: #162534;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 0.9rem;
+  background: #090d16;
+  border-bottom: 1px solid #1e293b;
 }
 
 .preview-panel .editor-toolbar {
-  background: var(--pk-gray-100);
-  border-bottom: 1px solid var(--pk-border);
+  background: var(--pk-gray-soft);
+  border-bottom: 2px solid var(--pk-border);
 }
 
 .editor-lang-badge {
-  font-size: 0.75rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.76rem;
   font-weight: 700;
-  text-transform: uppercase;
   color: #64748b;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
 }
 
 .editor-panel .editor-lang-badge {
-  color: #94a3b8;
+  color: #cbd5e1;
+  background: #1e293b;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
 }
 
 .editor-actions {
@@ -57,50 +63,68 @@
   align-items: center;
 }
 
+.editor-panel .btn-outline {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+  box-shadow: 0 2px 0 #090d16;
+}
+
+.editor-panel .btn-outline:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
 /* === CODE EDITOR WRAPPER === */
 .code-editor-wrapper {
   display: flex;
   flex: 1;
   overflow: hidden;
+  min-width: 0;
+  background: #0f172a;
 }
 
 .line-numbers {
-  background: #162534;
-  color: #4a5568;
-  padding: 0.75rem 0.5rem 0.75rem 0.25rem;
+  background: #0b1120;
+  color: #475569;
+  padding: 0.85rem 0.6rem 0.85rem 0.35rem;
   font-family: "JetBrains Mono", "Courier New", monospace;
   font-size: 0.85rem;
   text-align: right;
-  min-width: 2.5rem;
+  min-width: 2.75rem;
   user-select: none;
   white-space: pre;
   overflow: hidden;
-  line-height: 1.5;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  line-height: 1.55;
+  border-right: 1px solid #1e293b;
 }
 
 .code-editor-textarea {
   flex: 1;
-  background: #1e2d3d;
-  color: #cdd6f4;
+  background: #0f172a;
+  color: #e2e8f0;
   border: none;
-  padding: 0.75rem;
+  padding: 0.85rem;
   font-family: "JetBrains Mono", "Courier New", monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.86rem;
+  line-height: 1.55;
   resize: none;
   outline: none;
   tab-size: 2;
   overflow-y: auto;
-  caret-color: var(--pk-blue);
+  caret-color: #818cf8;
 }
 
 .code-editor-textarea::placeholder {
-  color: #4a5568;
+  color: #475569;
 }
 
 .code-editor-textarea::selection {
-  background: rgba(33, 150, 243, 0.3);
+  background: rgba(99, 102, 241, 0.35);
+}
+
+.code-editor-textarea:focus {
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.3);
 }
 
 /* === PREVIEW IFRAME === */
@@ -108,187 +132,137 @@
   width: 100%;
   flex: 1;
   border: none;
-  background: white;
+  background: #ffffff;
 }
 
 /* === CHALLENGE LAYOUT (in lesson) === */
-.challenge-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.challenge-layout .editor-panel {
-  border-radius: var(--pk-radius-sm);
-  min-height: 200px;
-}
-
+.challenge-layout .editor-panel,
 .challenge-layout .preview-panel {
   border-radius: var(--pk-radius-sm);
-  min-height: 200px;
+  min-height: 220px;
 }
 
-.challenge-layout .code-editor-textarea {
-  min-height: 180px;
-}
-
+.challenge-layout .code-editor-textarea,
 .challenge-layout .preview-iframe {
-  min-height: 180px;
+  min-height: 190px;
 }
 
-/* In lesson exercises (fix-code) */
 .exercise-fix .code-editor-wrapper {
   border-radius: var(--pk-radius-sm);
-  min-height: 100px;
+  border: 2px solid #1e293b;
+  min-height: 120px;
 }
 
 .exercise-fix .code-editor-textarea {
-  min-height: 100px;
+  min-height: 120px;
 }
 
-/* === Editor refinements === */
-.editor-panel,
-.preview-panel {
-  box-shadow: var(--pk-shadow-sm);
-}
-
-.editor-panel .btn-primary {
-  box-shadow: none;
-}
-
-.code-editor-textarea:focus {
-  box-shadow: inset 0 0 0 1px rgba(33, 150, 243, 0.22);
-}
-
-.project-checklist,
 .exercise-feedback {
   background: var(--pk-surface-soft);
 }
 
-/* === CODEMIRROR INTEGRATION ===
-   codemirror.css is loaded from the CDN AFTER this file, so plain `.CodeMirror` rules lose
-   to its light defaults (white editor, black text, light-grey gutter). Every themed rule is
-   therefore scoped with `.cm-s-pk` (higher specificity) so the dark theme always wins. */
+/* === CODEMIRROR INTEGRATION === */
 .CodeMirror {
   height: 100%;
   flex: 1;
   min-width: 0;
   font-family: "JetBrains Mono", "Courier New", monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.86rem;
+  line-height: 1.55;
 }
 
 .CodeMirror.cm-s-pk {
-  background: #1e2d3d;
-  color: #cdd6f4;
+  background: #0f172a;
+  color: #e2e8f0;
 }
 
 .CodeMirror.cm-s-pk .CodeMirror-lines {
-  padding: 0.75rem 0;
+  padding: 0.85rem 0;
 }
 
 .cm-s-pk .CodeMirror-gutters {
-  background: #162534;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: #0b1120;
+  border-right: 1px solid #1e293b;
 }
 
 .cm-s-pk .CodeMirror-linenumber {
-  color: #6b7f99;
-  padding: 0 0.5rem 0 0.75rem;
+  color: #475569;
+  padding: 0 0.6rem 0 0.75rem;
 }
 
 .cm-s-pk .CodeMirror-cursor {
-  border-left: 2px solid var(--pk-blue, #2196f3);
+  border-left: 2px solid #818cf8;
 }
 
-.cm-s-pk .CodeMirror-selected {
-  background: rgba(33, 150, 243, 0.3) !important;
-}
-
+.cm-s-pk .CodeMirror-selected,
 .cm-s-pk.CodeMirror-focused .CodeMirror-selected {
-  background: rgba(33, 150, 243, 0.3) !important;
+  background: rgba(99, 102, 241, 0.32) !important;
 }
 
 .cm-s-pk .CodeMirror-matchingbracket {
-  color: #ffd54f !important;
-  border-bottom: 1px solid #ffd54f;
+  color: #fbbf24 !important;
+  border-bottom: 1px solid #fbbf24;
   font-weight: bold;
 }
 
 .cm-s-pk .CodeMirror-matchingtag {
-  background: rgba(33, 150, 243, 0.25);
+  background: rgba(99, 102, 241, 0.22);
 }
 
 .cm-s-pk .CodeMirror-activeline-background {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-/* Theme "pk" token colors — matches the dashboard code-card palette */
+/* Token Syntax Colors (Studio Dark) */
 .cm-s-pk .cm-tag {
-  color: #f78166;
-} /* <h1>, </p>        */
-.cm-s-pk .cm-bracket {
-  color: #89ddff;
-} /* < >               */
+  color: #f472b6;
+}
+.cm-s-pk .cm-bracket,
+.cm-s-pk .cm-tag.cm-bracket {
+  color: #94a3b8;
+}
 .cm-s-pk .cm-attribute {
-  color: #c3e88d;
-} /* class, href       */
-.cm-s-pk .cm-string {
-  color: #e5c07b;
-} /* "judul"          */
+  color: #34d399;
+}
+.cm-s-pk .cm-string,
 .cm-s-pk .cm-string-2 {
-  color: #e5c07b;
+  color: #fcd34d;
 }
 .cm-s-pk .cm-comment {
-  color: #7b93a8;
+  color: #64748b;
   font-style: italic;
-} /* <!-- -->          */
+}
 .cm-s-pk .cm-def {
-  color: #82aaff;
-} /* DOCTYPE           */
+  color: #818cf8;
+}
 .cm-s-pk .cm-meta {
-  color: #89ddff;
-} /* <! ... >          */
+  color: #38bdf8;
+}
 .cm-s-pk .cm-keyword {
-  color: #c792ea;
-} /* JS keywords       */
-.cm-s-pk .cm-number {
-  color: #f78c6c;
+  color: #c084fc;
+}
+.cm-s-pk .cm-number,
+.cm-s-pk .cm-atom {
+  color: #fb923c;
 }
 .cm-s-pk .cm-variable {
-  color: #cdd6f4;
+  color: #e2e8f0;
 }
 .cm-s-pk .cm-variable-2 {
-  color: #82aaff;
+  color: #93c5fd;
 }
 .cm-s-pk .cm-property {
-  color: #89ddff;
-} /* CSS property      */
-.cm-s-pk .cm-builtin {
-  color: #f07178;
+  color: #38bdf8;
 }
-.cm-s-pk .cm-atom {
-  color: #f78c6c;
+.cm-s-pk .cm-builtin {
+  color: #f87171;
 }
 .cm-s-pk .cm-operator {
-  color: #89ddff;
+  color: #94a3b8;
 }
 .cm-s-pk .cm-qualifier {
-  color: #c3e88d;
-} /* CSS class selector*/
-.cm-s-pk .cm-tag.cm-bracket {
-  color: #89ddff;
+  color: #34d399;
 }
 .cm-s-pk .cm-error {
-  color: #ff8a80;
-}
-
-/* Editor must never push the layout wider than its panel */
-.code-editor-wrapper {
-  min-width: 0;
-}
-.editor-panel,
-.preview-panel {
-  min-width: 0;
+  color: #fda4af;
 }
