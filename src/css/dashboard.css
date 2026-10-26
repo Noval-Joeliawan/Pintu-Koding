@@ -376,6 +376,73 @@
   gap: 1.25rem;
 }
 
+/* Tab jalur belajar (HTML | CSS) */
+.track-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.track-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font: inherit;
+  color: var(--pk-navy);
+  background: var(--pk-white);
+  border: 2px solid var(--pk-border);
+  box-shadow: 0 2px 0 var(--pk-border);
+  border-radius: var(--pk-radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.track-tab:hover {
+  border-color: var(--pk-blue);
+}
+
+.track-tab:focus-visible {
+  outline: 3px solid var(--pk-blue);
+  outline-offset: 2px;
+}
+
+.track-tab.is-active {
+  background: var(--pk-blue-light);
+  border-color: var(--pk-blue);
+  box-shadow: 0 2px 0 var(--pk-blue);
+}
+
+.track-tab-icon {
+  font-size: 1.5rem;
+  flex: 0 0 auto;
+}
+
+.track-tab-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.track-tab-text strong {
+  font-size: 1rem;
+}
+
+.track-tab-text small {
+  color: var(--pk-text-light);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 520px) {
+  .track-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
 .level-card {
   margin-bottom: 0 !important;
 }
@@ -551,4 +618,18 @@
   .lesson-item {
     align-items: flex-start;
   }
+}
+
+
+/* Tombol pilihan jalur di hero dashboard */
+.track-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.track-choice-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
 }

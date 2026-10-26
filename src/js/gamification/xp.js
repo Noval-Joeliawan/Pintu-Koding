@@ -91,11 +91,12 @@
       }
     },
 
-    addFinalProject() {
-      const flag = `completed_final_project`;
+    /** Bonus Final Project, sekali per jalur. Jalur HTML memakai nama flag lama agar data lama tetap valid. */
+    addFinalProject(track) {
+      const flag = track && track !== 'html' ? `completed_final_project_${track}` : `completed_final_project`;
       if (!window.Storage.getFlag(flag)) {
         window.Storage.setFlag(flag);
-        this.add(100, 'final_project');
+        this.add(100, track && track !== 'html' ? `final_project:${track}` : 'final_project');
       }
     },
 

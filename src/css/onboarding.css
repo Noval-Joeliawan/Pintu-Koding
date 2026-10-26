@@ -33,44 +33,6 @@
   pointer-events: none;
 }
 
-/* Subtle architectural code watermarks */
-.deco-code {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.deco-code span {
-  position: absolute;
-  top: 100%;
-  left: var(--x, 50%);
-  font-family: "JetBrains Mono", monospace;
-  font-size: var(--s, 0.9rem);
-  color: rgba(148, 163, 184, 0.07);
-  white-space: nowrap;
-  animation: code-rise var(--d, 24s) linear infinite;
-  animation-delay: var(--dl, 0s);
-}
-
-@keyframes code-rise {
-  0% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-115vh);
-    opacity: 0;
-  }
-}
-
 /* Main Structured Card */
 .onboarding-container {
   position: relative;

@@ -38,18 +38,45 @@
   <link rel="stylesheet" href="src/css/editor.css" />
   <link rel="stylesheet" href="src/css/responsive.css" />
   <link rel="stylesheet" href="src/css/onboarding.css" />
+  <link rel="stylesheet" href="src/css/splash.css" />
 </head>
 
 <body>
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div id="splash" class="splash" role="status" aria-label="Memuat PintuKoding">
+    <div class="splash-logo" aria-hidden="true">
+      <div class="splash-door"><div class="splash-leaf"></div></div>
+    </div>
+    <div class="splash-badge">HTML · CSS · GRATIS 100%</div>
+    <h1 class="splash-title">Pintu<span>Koding</span></h1>
+    <p class="splash-tagline"><span>Belajar.</span><span>Ngoding.</span><span>Berkembang.</span></p>
+    <div class="splash-bar" aria-hidden="true"><i></i></div>
+    <p class="splash-hint">ketuk untuk melewati</p>
+  </div>
+  <script>
+    // Splash: pintu terbuka lalu kamera "masuk" ke dalamnya (±3,3 detik), bisa dilewati dengan klik / tombol apa saja
+    (function () {
+      var el = document.getElementById("splash");
+      if (!el) return;
+      var done = false;
+      function close() {
+        if (done) return;
+        done = true;
+        el.classList.add("is-entering"); // zoom masuk ke dalam pintu
+        setTimeout(function () { el.hidden = true; }, 1200);
+        document.removeEventListener("keydown", close);
+      }
+      el.addEventListener("click", close);
+      document.addEventListener("keydown", close);
+      setTimeout(close, 2200);
+    })();
+  </script>
   <!-- ===== ONBOARDING ===== -->
   <div id="view-onboarding" class="view view-onboarding active">
     <div class="onboarding-bg-decoration">
       <div class="deco-circle deco-1"></div>
       <div class="deco-circle deco-2"></div>
       <div class="deco-circle deco-3"></div>
-      <div class="deco-code" aria-hidden="true">
-        <span>&lt;html&gt;</span><span>&lt;body&gt;</span><span>&lt;h1&gt;</span><span>&lt;p&gt;</span><span>&lt;div&gt;</span><span>&lt;a&gt;</span><span>&lt;/div&gt;</span><span>&lt;img&gt;</span><span>&lt;li&gt;</span><span>&lt;/h1&gt;</span><span>&lt;button&gt;</span><span>&lt;/a&gt;</span><span>&lt;span&gt;</span><span>&lt;/body&gt;</span><span>&lt;/html&gt;</span><span>&lt;section&gt;</span><span>&lt;input&gt;</span><span>&lt;form&gt;</span><span>&lt;ul&gt;</span><span>&lt;nav&gt;</span><span>&lt;/p&gt;</span>
-      </div>
     </div>
     <div class="onboarding-container">
       <div id="onboarding-step-1" class="onboarding-step">
@@ -67,7 +94,7 @@
           <span>Berkembang.</span>
         </p>
         <p class="onboarding-desc">
-          Belajar HTML dari nol sampai bisa membuat website — lewat materi
+          Belajar HTML dan CSS dari nol sampai bisa membuat website — lewat materi
           interaktif, latihan langsung di editor, dan XP sebagai reward.
         </p>
         <button id="btn-onboarding-start" class="btn btn-primary btn-lg onboarding-cta">
@@ -76,7 +103,7 @@
           <span class="cta-arrow">→</span>
         </button>
         <div class="onboarding-feature-row">
-          <span class="onboarding-feature">📚 60 Lesson Terstruktur</span>
+          <span class="onboarding-feature">📚 110 Lesson Terstruktur</span>
           <span class="onboarding-feature">🧪 Live Playground</span>
           <span class="onboarding-feature">🏆 Sistem Achievement</span>
         </div>
@@ -192,7 +219,7 @@
         <div class="dashboard-hero">
           <div class="hero-content">
             <p class="hero-greeting" id="dashboard-greeting">Halo! 👋</p>
-            <h1 class="hero-title">Belajar HTML dari Nol</h1>
+            <h1 class="hero-title">Belajar HTML &amp; CSS dari Nol</h1>
             <p class="hero-subtitle">
               Pelajari pondasi web melalui materi interaktif, tantangan kode
               langsung, dan mini-project bertahap.
@@ -204,6 +231,11 @@
               <button id="btn-continue-learning" class="btn btn-outline btn-lg" style="display: none">
                 ▶ Lanjutkan Belajar
               </button>
+            </div>
+            <div class="track-choice" role="group" aria-label="Pilih jalur belajar">
+              <span class="track-choice-label">Pilih jalur:</span>
+              <button type="button" class="btn btn-outline track-choice-btn" data-track-go="html">🌐 HTML</button>
+              <button type="button" class="btn btn-outline track-choice-btn" data-track-go="css">🎨 CSS</button>
             </div>
           </div>
           <div class="hero-visual">
@@ -246,7 +278,7 @@
           </div>
           <div class="stat-card stat-card-lessons">
             <div class="stat-icon">📚</div>
-            <div class="stat-value" id="dash-lessons">0/60</div>
+            <div class="stat-value" id="dash-lessons">0/110</div>
             <div class="stat-label">Lesson Selesai</div>
           </div>
           <div class="stat-card stat-card-streak">
@@ -267,7 +299,7 @@
 
         <div class="dashboard-progress-section">
           <div class="section-header">
-            <h3>Progress Kurikulum HTML</h3>
+            <h3>Progress Kurikulum</h3>
             <span id="dash-progress-text">0%</span>
           </div>
           <div class="progress-track">
@@ -428,7 +460,7 @@
             </div>
             <div class="profile-progress-section">
               <div class="section-header">
-                <span>Ketuntasan Materi HTML</span>
+                <span>Ketuntasan Materi</span>
                 <span id="profile-progress-text">0%</span>
               </div>
               <div class="progress-track">
@@ -533,10 +565,17 @@
   <script src="src/js/gamification/streak.js"></script>
   <script src="src/js/gamification/achievements.js"></script>
   <script src="src/js/gamification/progress.js"></script>
+  <script src="src/js/editor/css-checker.js"></script>
   <script src="src/js/editor/validator.js"></script>
   <script src="src/js/editor/sandbox.js"></script>
   <script src="src/js/editor/editor.js"></script>
   <script src="src/js/lessons/data.js"></script>
+  <script src="src/js/lessons/css/kit.js"></script>
+  <script src="src/js/lessons/css/level-13-14.js"></script>
+  <script src="src/js/lessons/css/level-15-16.js"></script>
+  <script src="src/js/lessons/css/level-17-18.js"></script>
+  <script src="src/js/lessons/css/level-19-20.js"></script>
+  <script src="src/js/lessons/css/level-21-22.js"></script>
   <script src="src/js/lessons/exercises.js"></script>
   <script src="src/js/lessons/lessons.js"></script>
   <script src="src/js/lessons/navigation.js"></script>

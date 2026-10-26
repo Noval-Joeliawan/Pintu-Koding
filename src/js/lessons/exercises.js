@@ -21,6 +21,14 @@ window.Exercises = {
       .replace(/&lt;(strong|em)&gt;([^<>]*?)&lt;\/\1&gt;/g, '<$1>$2</$1>');
   },
 
+  /** Jalur CSS menulis HTML + <style>, jadi label editornya menyesuaikan. */
+  _langBadge() {
+    const level = window.LessonData && window.LessonEngine
+      ? window.LessonData.getLevel(window.LessonEngine.levelId)
+      : null;
+    return level && level.track === 'css' ? 'HTML + CSS' : 'HTML';
+  },
+
   render(slide, container) {
     this.currentSlide = slide;
     this.currentAnswer = null;
@@ -116,7 +124,7 @@ window.Exercises = {
         <div class="challenge-layout">
           <div class="editor-panel">
             <div class="editor-toolbar">
-              <span class="editor-lang-badge">HTML</span>
+              <span class="editor-lang-badge">${this._langBadge()}</span>
               <div class="editor-actions">
                 <button class="btn btn-primary btn-sm" onclick="Editor.runCurrent('chal-editor', 'chal-preview')">▶ Run</button>
               </div>
@@ -153,7 +161,7 @@ window.Exercises = {
         <div class="project-layout">
           <div class="editor-panel">
             <div class="editor-toolbar">
-              <span class="editor-lang-badge">HTML</span>
+              <span class="editor-lang-badge">${this._langBadge()}</span>
               <div class="editor-actions">
                 <button class="btn btn-primary btn-sm" onclick="Editor.runCurrent('chal-editor', 'chal-preview')">▶ Run</button>
               </div>
@@ -187,7 +195,7 @@ window.Exercises = {
         <div class="challenge-layout">
           <div class="editor-panel">
             <div class="editor-toolbar">
-              <span class="editor-lang-badge">HTML</span>
+              <span class="editor-lang-badge">${this._langBadge()}</span>
               <div class="editor-actions">
                 <button class="btn btn-primary btn-sm" onclick="Editor.runCurrent('chal-editor', 'chal-preview')">▶ Run</button>
               </div>
@@ -520,6 +528,8 @@ window.Exercises = {
     const doc = this._parseHTML(stripped);
 
     const checkItems = this.currentSlide.checkItems || [];
+    // Helper CSS (cascade + inheritance) untuk checkStr di Jalur CSS: css.is('h1','color','red'), dst.
+    const cssHelper = window.CSSCheck ? window.CSSCheck.create(doc) : null;
     let allPassed = true;
     let failedLabels = [];
 
@@ -527,8 +537,8 @@ window.Exercises = {
       let passed = false;
       try {
         if (item.checkStr) {
-          const fn = new Function('doc', `return (${item.checkStr});`);
-          passed = fn(doc);
+          const fn = new Function('doc', 'css', `return (${item.checkStr});`);
+          passed = fn(doc, cssHelper);
         } else if (item.selector) {
           passed = !!doc.querySelector(item.selector);
         }

@@ -1,5 +1,15 @@
-// js/data.js — PintuKoding Lesson Data (12 Levels × 5 Lessons = 60 Lessons)
+// js/data.js — PintuKoding Lesson Data
+// Jalur HTML : Level 1–12  (12 level × 5 lesson = 60 lesson)  — ditulis di berkas ini
+// Jalur CSS  : Level 13–22 (10 level × 5 lesson = 50 lesson)  — src/js/lessons/css/*.js, ditambahkan lewat addLevel()
+//
+// ID level dibuat berurutan lintas jalur supaya kunci progres lama ("1-3", "12-5", ...) tetap valid.
+// Level jalur CSS membawa `track: 'css'` dan `trackLevel: 1..10` untuk label ("CSS Level 3").
 window.LessonData = {
+
+  tracks: [
+    { id: 'html', title: 'HTML', icon: '🌐', description: 'Struktur halaman web' },
+    { id: 'css', title: 'CSS', icon: '🎨', description: 'Tampilan & tata letak' }
+  ],
 
   getLevel(levelId) {
     return this.levels.find(l => l.id === parseInt(levelId));
@@ -8,6 +18,38 @@ window.LessonData = {
   getLesson(levelId, lessonId) {
     const level = this.getLevel(levelId);
     return level ? level.lessons.find(l => l.id === parseInt(lessonId)) : null;
+  },
+
+  /** 'html' | 'css' — level tanpa properti track dianggap jalur HTML. */
+  getTrackId(levelOrId) {
+    const level = typeof levelOrId === 'object' ? levelOrId : this.getLevel(levelOrId);
+    return (level && level.track) || 'html';
+  },
+
+  getLevelsByTrack(trackId) {
+    return this.levels.filter(l => this.getTrackId(l) === trackId);
+  },
+
+  /** "Level 3" untuk jalur HTML, "CSS Level 3" untuk jalur CSS. */
+  getLevelLabel(levelOrId) {
+    const level = typeof levelOrId === 'object' ? levelOrId : this.getLevel(levelOrId);
+    if (!level) return `Level ${levelOrId}`;
+    return this.getTrackId(level) === 'css'
+      ? `CSS Level ${level.trackLevel || level.id}`
+      : `Level ${level.id}`;
+  },
+
+  /** Level terakhir tiap jalur punya lesson 5 = Final Project (XP & flag bonus khusus). */
+  isFinalProject(levelId, lessonId) {
+    const level = this.getLevel(levelId);
+    return !!level && (level.finalProject === true || level.id === 12) && parseInt(lessonId) === 5;
+  },
+
+  /** Sisipkan level baru (dipakai berkas jalur CSS) dan jaga urutan berdasarkan id. */
+  addLevel(level) {
+    if (this.levels.some(l => l.id === level.id)) return;
+    this.levels.push(level);
+    this.levels.sort((a, b) => a.id - b.id);
   },
 
   levels: [
@@ -724,7 +766,7 @@ window.LessonData = {
     // LEVEL 12 — FINAL PROJECT
     // ============================================================
     {
-      id: 12, icon: '🚀', title: 'Final Project',
+      id: 12, icon: '🚀', title: 'Final Project', finalProject: true,
       description: 'Terapkan semua yang telah kamu pelajari dalam proyek akhir',
       lessons: [
         {

@@ -22,6 +22,15 @@
 //                                                  // properly nested. DOMParser silently "repairs" broken
 //                                                  // markup, so this must inspect the text the user typed.
 //   rawMatch:          [{pattern, flags, message}] // RAW source must match the regex (e.g. quoted attributes)
+//   css:               [{sel:'h1', prop:'color', value:'blue', msg, hint}]  // JALUR CSS: nilai akhir (cascade +
+//                                                  // inheritance) property pada element pertama yang cocok `sel`.
+//                                                  // value: string | [any-of] | /re/ | {re}; tanpa value = "sudah diatur".
+//                                                  // opsi: all:true (semua element cocok), min/max (angka pertama),
+//                                                  //       literal:true (aturan harus ditulis persis untuk selector tsb,
+//                                                  //       cocok untuk :hover / ::before), not:true (nilai TIDAK boleh cocok),
+//                                                  //       missingMsg (pesan bila element `sel` tidak ada di HTML)
+//   cssMedia:          [{pattern:'max-width', prop:'flex-direction', value:'column', msg}]
+//                                                  // harus ada @media dengan kondisi cocok (+ deklarasi di dalamnya)
 
 (function () {
   "use strict";
@@ -37,6 +46,11 @@
     } catch (e) {
       throw new Error("Tidak ada HTML parser tersedia.");
     }
+  }
+
+  function getCSSCheck() {
+    if (typeof window !== "undefined" && window.CSSCheck) return window.CSSCheck;
+    try { return require("./css-checker.js"); } catch (e) { return null; }
   }
 
   function tagName(el) {
@@ -604,6 +618,61 @@
         if (rule.hint) hints.push(rule.hint);
       }
     });
+
+    // ---------- css (Jalur CSS: nilai akhir sebuah properti) ----------
+    if ((rules.css && rules.css.length) || (rules.cssMedia && rules.cssMedia.length)) {
+      var CC = getCSSCheck();
+      var cssApi = CC ? CC.create(doc) : null;
+      if (!cssApi) {
+        errors.push("Pemeriksa CSS tidak tersedia.");
+      } else {
+        (rules.css || []).forEach(function (item) {
+          var label = item.sel + " { " + item.prop + " }";
+          var ok;
+          var els;
+          try { els = doc.querySelectorAll(item.sel); } catch (e) { els = []; }
+          // literal: selector seperti ".tombol:hover" tidak cocok dengan element manapun saat tidak
+          // di-hover, jadi cukup periksa teks aturannya (element-nya dicek lewat rule `selectors`).
+          if (els.length === 0 && !item.literal) {
+            errors.push(item.missingMsg || item.msg || ('Element "' + item.sel + '" tidak ditemukan di HTML kamu.'));
+            if (item.hint) hints.push(item.hint);
+            return;
+          }
+          if (item.literal) {
+            ok = cssApi.has(item.sel, item.prop, item.value);
+          } else if (item.min !== undefined || item.max !== undefined) {
+            var n = cssApi.num(item.sel, item.prop);
+            ok = n !== null &&
+              (item.min === undefined || n >= item.min) &&
+              (item.max === undefined || n <= item.max);
+          } else if (item.all) {
+            ok = cssApi.all(item.sel, item.prop, item.value);
+          } else {
+            ok = cssApi.is(item.sel, item.prop, item.value);
+          }
+          if (item.not) ok = !ok; // not:true → nilai/properti ini justru TIDAK boleh cocok
+          if (ok) {
+            passed.push(item.ok || ("CSS " + label + " sudah benar."));
+          } else {
+            errors.push(item.msg || (item.value !== undefined
+              ? 'Properti "' + item.prop + '" pada "' + item.sel + '" belum bernilai seperti yang diminta.'
+              : 'Properti "' + item.prop + '" pada "' + item.sel + '" belum diatur.'));
+            if (item.hint) hints.push(item.hint);
+          }
+        });
+        (rules.cssMedia || []).forEach(function (item) {
+          // pattern: kondisi @media yang dicari; prop/value (opsional): deklarasi yang harus ada di dalam @media
+          var ok = cssApi.hasMedia(item.pattern || /./) &&
+            (!item.prop || cssApi.mediaHas(item.prop, item.value));
+          if (ok) {
+            passed.push(item.ok || "Media query sudah ditulis.");
+          } else {
+            errors.push(item.msg || "Media query (@media) belum ditulis dengan benar.");
+            if (item.hint) hints.push(item.hint);
+          }
+        });
+      }
+    }
 
     // dedupe errors (same message can fire multiple times)
     const seen = new Set();

@@ -255,6 +255,8 @@ window.App = {
       window.Editor.initListeners();
     if (window.LessonEngine && window.LessonEngine.initListeners)
       window.LessonEngine.initListeners();
+    if (window.LessonEngine && window.LessonEngine.syncUnlocks)
+      window.LessonEngine.syncUnlocks();
     Navigation.init();
     Navigation.initKeyboardShortcuts();
     Navigation.updateAllStats();

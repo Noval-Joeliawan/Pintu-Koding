@@ -56,8 +56,46 @@ window.Achievements = {
       id: "html_master",
       icon: "🏆",
       title: "HTML Master",
-      desc: "Menyelesaikan semua 60 lesson",
-      condition: (u) => u.completedLessons.length >= 60,
+      desc: "Menyelesaikan semua 60 lesson HTML",
+      // hanya hitung lesson jalur HTML (level 1–12); lesson CSS punya level 13–22
+      condition: (u) =>
+        u.completedLessons.filter((k) => parseInt(k, 10) <= 12).length >= 60,
+    },
+    {
+      id: "css_beginner",
+      icon: "🎨",
+      title: "CSS Beginner",
+      desc: "Menyelesaikan CSS Level 1",
+      condition: (u) =>
+        u.completedLessons.filter((k) => k.startsWith("13-")).length >= 5,
+    },
+    {
+      id: "box_builder",
+      icon: "📦",
+      title: "Box Builder",
+      desc: "Menyelesaikan CSS Level 4 (Box Model)",
+      condition: (u) =>
+        u.completedLessons.filter((k) => k.startsWith("16-")).length >= 5,
+    },
+    {
+      id: "flex_master",
+      icon: "🧱",
+      title: "Flexbox Master",
+      desc: "Menyelesaikan kedua level Flexbox",
+      condition: (u) =>
+        u.completedLessons.filter((k) => k.startsWith("18-")).length >= 5 &&
+        u.completedLessons.filter((k) => k.startsWith("19-")).length >= 5,
+    },
+    {
+      id: "css_master",
+      icon: "💎",
+      title: "CSS Master",
+      desc: "Menyelesaikan semua 50 lesson CSS",
+      condition: (u) =>
+        u.completedLessons.filter((k) => {
+          const n = parseInt(k, 10);
+          return n >= 13 && n <= 22;
+        }).length >= 50,
     },
   ],
 

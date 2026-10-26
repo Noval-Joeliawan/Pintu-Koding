@@ -23,6 +23,8 @@ window.LessonEngine = {
     this.levelId = levelId;
     this.lessonId = lessonId;
     this._lessonData = lesson;
+    // Learning Path kembali ke jalur (HTML/CSS) tempat pelajaran ini berada
+    if (window.Navigation) Navigation._pathTrack = LessonData.getTrackId(levelId);
     this.slides = lesson.slides || [];
     this.currentIndex = 0;
     this.hasAnswered = false;
@@ -60,7 +62,7 @@ window.LessonEngine = {
     // Update lesson header
     const lvlBadge = document.getElementById('lesson-level-badge');
     const titleLabel = document.getElementById('lesson-title-label');
-    if (lvlBadge) lvlBadge.textContent = this.isPracticeMode ? `Mode Latihan` : `Level ${levelId}`;
+    if (lvlBadge) lvlBadge.textContent = this.isPracticeMode ? `Mode Latihan` : LessonData.getLevelLabel(levelId);
     if (titleLabel) {
       titleLabel.innerHTML = this.isPracticeMode
         ? `${lesson.title} <span class="badge-practice" style="background:var(--pk-error-light);color:var(--pk-error);font-size:0.75rem;padding:0.2rem 0.6rem;border-radius:12px;font-weight:600;margin-left:0.5rem">❤️ +1 Heart jika selesai</span>`
@@ -301,8 +303,8 @@ window.LessonEngine = {
 
     // Mini project XP
     if (this._lessonData && this._lessonData.isProject) {
-      if (levelId === 12 && lessonId === 5) {
-        XP.addFinalProject();
+      if (LessonData.isFinalProject(levelId, lessonId)) {
+        XP.addFinalProject(LessonData.getTrackId(levelId));
       } else {
         XP.addMiniProject(levelId);
       }
@@ -338,13 +340,20 @@ window.LessonEngine = {
     XP.addLevelComplete(levelId);
     this._xpGained = (this._xpGained || 0) + Math.max(0, Storage.getUser().xp - xpBeforeLevel);
 
-    // Unlock next level
+    // Unlock next level (urutan level berlanjut dari jalur HTML ke jalur CSS)
     const user = Storage.getUser();
-    const nextLevelId = levelId + 1;
-    if (nextLevelId <= 12 && !user.unlockedLevels.includes(nextLevelId)) {
+    const nextLevel = LessonData.getLevel(levelId + 1);
+    const nextLevelId = nextLevel ? nextLevel.id : null;
+    if (nextLevelId && !user.unlockedLevels.includes(nextLevelId)) {
       user.unlockedLevels.push(nextLevelId);
       Storage.saveUser(user);
     }
+    const crossesTrack = !!nextLevel && LessonData.getTrackId(nextLevel) !== LessonData.getTrackId(levelId);
+    const unlockMsg = !nextLevel
+      ? '🎉 Semua level selesai!'
+      : crossesTrack
+        ? `🎨 Jalur ${LessonData.getTrackId(nextLevel).toUpperCase()} terbuka! Lanjut ke ${LessonData.getLevelLabel(nextLevel)}.`
+        : `🔓 ${LessonData.getLevelLabel(nextLevel)} terbuka!`;
 
     Achievements.check();
 
@@ -357,9 +366,9 @@ window.LessonEngine = {
       container.innerHTML = `
         <div class="completion-screen">
           <div class="completion-emoji">🏆</div>
-          <h2 class="completion-title">Level ${levelId} Selesai!</h2>
+          <h2 class="completion-title">${LessonData.getLevelLabel(levelId)} Selesai!</h2>
           ${this._xpGained > 0 ? `<p class="completion-xp">⭐ +${this._xpGained} XP</p>` : '<p class="completion-xp">✓ Level sudah pernah diselesaikan</p>'}
-          ${nextLevelId <= 12 ? `<p class="completion-unlock">🔓 Level ${nextLevelId} terbuka!</p>` : '<p class="completion-unlock">🎉 Semua level selesai!</p>'}
+          <p class="completion-unlock">${unlockMsg}</p>
           <div class="completion-actions">
             <button class="btn btn-primary btn-lg" onclick="LessonEngine.close()">Kembali ke Menu</button>
           </div>
@@ -438,6 +447,35 @@ window.LessonEngine = {
         </div>
       </div>
     `);
+  },
+
+  /**
+   * Pastikan level berikutnya terbuka bila semua lesson level sebelumnya sudah selesai.
+   * Perlu untuk pengguna lama: dulu Level 12 adalah level terakhir, jadi Level 13 (CSS Level 1)
+   * belum pernah ikut terbuka walau Level 12 sudah tamat.
+   */
+  syncUnlocks() {
+    if (typeof LessonData === 'undefined' || typeof Storage === 'undefined') return;
+    const user = Storage.getUser();
+    let changed = false;
+    LessonData.levels.forEach((level, i) => {
+      const next = LessonData.levels[i + 1];
+      if (!next) return;
+      const allDone = level.lessons.every(l => user.completedLessons.includes(`${level.id}-${l.id}`));
+      if (allDone && !user.unlockedLevels.includes(next.id)) {
+        user.unlockedLevels.push(next.id);
+        changed = true;
+      }
+    });
+    // Setiap jalur (HTML / CSS) bisa dimulai kapan saja: level pertamanya selalu terbuka.
+    LessonData.tracks.forEach(t => {
+      const first = LessonData.getLevelsByTrack(t.id)[0];
+      if (first && !user.unlockedLevels.includes(first.id)) {
+        user.unlockedLevels.push(first.id);
+        changed = true;
+      }
+    });
+    if (changed) Storage.saveUser(user);
   },
 
   initListeners() {
