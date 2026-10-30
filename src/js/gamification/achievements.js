@@ -97,6 +97,41 @@ window.Achievements = {
           return n >= 13 && n <= 22;
         }).length >= 50,
     },
+    {
+      id: "js_beginner",
+      icon: "⚡",
+      title: "JS Beginner",
+      desc: "Menyelesaikan JS Level 1",
+      condition: (u) =>
+        u.completedLessons.filter((k) => k.startsWith("23-")).length >= 5,
+    },
+    {
+      id: "loop_master",
+      icon: "🔁",
+      title: "Loop Master",
+      desc: "Menyelesaikan JS Level 7 (Perulangan)",
+      condition: (u) =>
+        u.completedLessons.filter((k) => k.startsWith("29-")).length >= 5,
+    },
+    {
+      id: "function_master",
+      icon: "🧩",
+      title: "Function Master",
+      desc: "Menyelesaikan JS Level 9 (Fungsi)",
+      condition: (u) =>
+        u.completedLessons.filter((k) => k.startsWith("31-")).length >= 5,
+    },
+    {
+      id: "js_master",
+      icon: "🏅",
+      title: "JS Master",
+      desc: "Menyelesaikan semua 50 lesson JavaScript",
+      condition: (u) =>
+        u.completedLessons.filter((k) => {
+          const n = parseInt(k, 10);
+          return n >= 23 && n <= 32;
+        }).length >= 50,
+    },
   ],
 
   check() {

@@ -34,6 +34,13 @@
   --pk-streak: #f97316;
   --pk-streak-light: #fff7ed;
 
+  /* Jalur JavaScript — kuning/emas khas JS (kontras teks aman di latar terang) */
+  --pk-js: #b45309;
+  --pk-js-strong: #d97706;
+  --pk-js-light: #fef3c7;
+  --pk-js-border: #fcd34d;
+  --pk-js-dark: #92400e;
+
   /* Tactile Shadows (No blurry blue glow!) */
   --pk-shadow-sm: 0 2px 0 rgba(17, 24, 39, 0.06);
   --pk-shadow: 0 3px 0 rgba(17, 24, 39, 0.08);
@@ -416,6 +423,13 @@ html[data-theme="dark"] {
   --pk-error-light: rgba(244, 63, 94, 0.15);
   --pk-warning-light: rgba(245, 158, 11, 0.15);
   --pk-streak-light: rgba(249, 115, 22, 0.15);
+
+  /* Jalur JavaScript — versi Mode Gelap */
+  --pk-js: #fbbf24;
+  --pk-js-strong: #f59e0b;
+  --pk-js-light: rgba(245, 158, 11, 0.16);
+  --pk-js-border: rgba(245, 158, 11, 0.5);
+  --pk-js-dark: #fcd34d;
 }
 
 /* Penyesuaian khusus komponen di Mode Gelap */

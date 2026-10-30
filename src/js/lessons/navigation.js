@@ -1,78 +1,107 @@
 // js/navigation.js — SPA Router & Navigation
 window.Navigation = {
-  currentView: 'dashboard',
+  currentView: "dashboard",
 
   _escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[char]));
+    return String(value ?? "").replace(
+      /[&<>"']/g,
+      (char) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '\"': "&quot;",
+          "'": "&#39;",
+        })[char],
+    );
   },
 
   /** Level terbuka tertinggi (jalur HTML 1–12, jalur CSS 13–22). */
   _getCurrentLearningLevel(user) {
-    const levels = Array.isArray(user.unlockedLevels) ? user.unlockedLevels : [1];
+    const levels = Array.isArray(user.unlockedLevels)
+      ? user.unlockedLevels
+      : [1];
     const maxId = Math.max(...levels.map(Number).filter(Number.isFinite), 1);
-    const lastId = LessonData?.levels?.length ? LessonData.levels[LessonData.levels.length - 1].id : 12;
+    const lastId = LessonData?.levels?.length
+      ? LessonData.levels[LessonData.levels.length - 1].id
+      : 12;
     return Math.min(lastId, Math.max(1, maxId));
   },
 
-  /** Label pendek untuk kartu statistik: "3" untuk jalur HTML, "CSS 3" untuk jalur CSS. */
+  /** Label pendek untuk kartu statistik: "3" untuk jalur HTML, "CSS 3" untuk jalur CSS, "JS 3" untuk jalur JS. */
   _getCurrentLevelShort(user) {
     const id = this._getCurrentLearningLevel(user);
     const level = LessonData?.getLevel(id);
-    return level && LessonData.getTrackId(level) === 'css' ? `CSS ${level.trackLevel || id}` : String(id);
+    if (!level) return String(id);
+    const track = LessonData.getTrackId(level);
+    if (track === "css") return `CSS ${level.trackLevel || id}`;
+    if (track === "js") return `JS ${level.trackLevel || id}`;
+    return String(id);
   },
 
   init() {
     // Sidebar nav and bottom nav clicks
-    document.querySelectorAll('[data-view]').forEach(el => {
-      el.addEventListener('click', (e) => {
+    document.querySelectorAll("[data-view]").forEach((el) => {
+      el.addEventListener("click", (e) => {
         e.preventDefault();
-        const view = el.getAttribute('data-view');
+        const view = el.getAttribute("data-view");
         if (view) this.goto(view);
       });
     });
 
-    // Tombol pilihan jalur (HTML / CSS) di dashboard
-    document.querySelectorAll('[data-track-go]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this._pathTrack = btn.dataset.trackGo;
-        this.goto('learning-path');
+    // Tombol pilihan jalur (HTML / CSS / JavaScript) di dashboard
+    document.querySelectorAll("[data-track-go]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this.setActiveTrack(btn.dataset.trackGo);
+        this.goto("learning-path");
         this.renderLearningPath();
       });
     });
   },
 
+  /**
+   * Pilih jalur aktif + simpan ke State agar tab materi terakhir tetap aktif
+   * saat user kembali dari halaman latihan ke dashboard / learning path.
+   */
+  setActiveTrack(trackId) {
+    this._pathTrack = trackId;
+    if (window.State && typeof window.State.setActiveTrack === "function") {
+      window.State.setActiveTrack(trackId);
+    }
+  },
+
   goto(viewName) {
-    document.body.classList.toggle('in-lesson', viewName === 'lesson');
+    document.body.classList.toggle("in-lesson", viewName === "lesson");
     // Hide all content views
-    document.querySelectorAll('.content-view').forEach(el => {
-      el.style.display = 'none';
-      el.classList.remove('active');
+    document.querySelectorAll(".content-view").forEach((el) => {
+      el.style.display = "none";
+      el.classList.remove("active");
     });
 
     // Show target view
     const target = document.getElementById(`view-${viewName}`);
     if (target) {
-      target.style.display = 'block';
-      target.classList.add('active');
+      target.style.display = "block";
+      target.classList.add("active");
     }
 
     // If not lesson view, ensure sidebar/bottom-nav visible
-    if (viewName !== 'lesson') {
-      const sidebar = document.getElementById('sidebar-nav');
-      const bn = document.getElementById('bottom-nav');
-      if (sidebar) sidebar.style.display = '';
-      if (bn) bn.style.display = '';
+    if (viewName !== "lesson") {
+      const sidebar = document.getElementById("sidebar-nav");
+      const bn = document.getElementById("bottom-nav");
+      if (sidebar) sidebar.style.display = "";
+      if (bn) bn.style.display = "";
       // Also show mobile top bar
-      const mtb = document.getElementById('mobile-top-bar');
-      if (mtb) mtb.style.display = '';
+      const mtb = document.getElementById("mobile-top-bar");
+      if (mtb) mtb.style.display = "";
     }
 
     // Update active nav items
-    document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(el => {
-      if (el.getAttribute('data-view') === viewName) {
-        el.classList.add('active');
+    document.querySelectorAll(".nav-item, .bottom-nav-item").forEach((el) => {
+      if (el.getAttribute("data-view") === viewName) {
+        el.classList.add("active");
       } else {
-        el.classList.remove('active');
+        el.classList.remove("active");
       }
     });
 
@@ -80,12 +109,24 @@ window.Navigation = {
 
     // Page-specific render
     switch (viewName) {
-      case 'dashboard':    this.renderDashboard(); break;
-      case 'learning-path': this.renderLearningPath(); break;
-      case 'progress':    Progress.render(); break;
-      case 'achievements': Achievements.render(); break;
-      case 'playground':  App.initPlayground(); break;
-      case 'profile':     this.renderProfile(); break;
+      case "dashboard":
+        this.renderDashboard();
+        break;
+      case "learning-path":
+        this.renderLearningPath();
+        break;
+      case "progress":
+        Progress.render();
+        break;
+      case "achievements":
+        Achievements.render();
+        break;
+      case "playground":
+        App.initPlayground();
+        break;
+      case "profile":
+        this.renderProfile();
+        break;
     }
 
     this.updateAllStats();
@@ -104,75 +145,107 @@ window.Navigation = {
     const user = Storage.getUser();
 
     // Greeting
-    const greet = document.getElementById('dashboard-greeting');
-    if (greet) greet.textContent = `Halo, ${user.username || 'Pelajar'}! 👋`;
+    const greet = document.getElementById("dashboard-greeting");
+    if (greet) greet.textContent = `Halo, ${user.username || "Pelajar"}! 👋`;
 
     // Level + XP
-    if (window.LessonEngine && LessonEngine.syncUnlocks) LessonEngine.syncUnlocks();
+    if (window.LessonEngine && LessonEngine.syncUnlocks)
+      LessonEngine.syncUnlocks();
     const currentLevel = this._getCurrentLevelShort(Storage.getUser());
-    const dashLevel = document.getElementById('dash-level');
-    const mobLevel = document.getElementById('level-value-mob');
+    const dashLevel = document.getElementById("dash-level");
+    const mobLevel = document.getElementById("level-value-mob");
     if (dashLevel) dashLevel.textContent = currentLevel;
     if (mobLevel) mobLevel.textContent = currentLevel;
 
-    const dashXp = document.getElementById('dash-xp');
+    const dashXp = document.getElementById("dash-xp");
     if (dashXp) dashXp.textContent = user.xp;
 
     // Lessons count
-    const dashLessons = document.getElementById('dash-lessons');
-    const totalLessons = LessonData?.levels?.reduce((sum, level) => sum + level.lessons.length, 0) || 60;
-    if (dashLessons) dashLessons.textContent = `${user.completedLessons.length}/${totalLessons}`;
+    const dashLessons = document.getElementById("dash-lessons");
+    const totalLessons =
+      LessonData?.levels?.reduce(
+        (sum, level) => sum + level.lessons.length,
+        0,
+      ) || 160;
+    if (dashLessons)
+      dashLessons.textContent = `${user.completedLessons.length}/${totalLessons}`;
 
     // Streak
-    const dashStreak = document.getElementById('dash-streak');
+    const dashStreak = document.getElementById("dash-streak");
     if (dashStreak) dashStreak.textContent = user.streak;
 
     // Hearts
-    const dashHearts = document.getElementById('dash-hearts');
+    const dashHearts = document.getElementById("dash-hearts");
     if (dashHearts) dashHearts.textContent = `${user.hearts}/5`;
 
     // Progress
-    const pct = Math.min(100, Math.round((user.completedLessons.length / totalLessons) * 100));
-    const pb = document.getElementById('dash-progress-bar');
-    const pt = document.getElementById('dash-progress-text');
+    const pct = Math.min(
+      100,
+      Math.round((user.completedLessons.length / totalLessons) * 100),
+    );
+    const pb = document.getElementById("dash-progress-bar");
+    const pt = document.getElementById("dash-progress-text");
     if (pb) pb.style.width = `${pct}%`;
     if (pt) pt.textContent = `${pct}%`;
 
     // Start/continue buttons
-    const btnStart = document.getElementById('btn-start-learning');
-    const btnCont = document.getElementById('btn-continue-learning');
+    const btnStart = document.getElementById("btn-start-learning");
+    const btnCont = document.getElementById("btn-continue-learning");
     if (btnStart && btnCont) {
       if (user.lastLesson) {
-        btnStart.style.display = 'none';
-        btnCont.style.display = '';
+        btnStart.style.display = "none";
+        btnCont.style.display = "";
       } else {
-        btnStart.style.display = '';
-        btnCont.style.display = 'none';
+        btnStart.style.display = "";
+        btnCont.style.display = "none";
       }
     }
+
+    // Sorot tombol pilihan jalur yang aktif (HTML / CSS / JS)
+    const activeTrack = this._getActivePathTrack(user);
+    document.querySelectorAll("[data-track-go]").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.trackGo === activeTrack);
+    });
 
     // Level preview cards
     this._renderDashboardLevelPreview(user);
   },
 
   _renderDashboardLevelPreview(user) {
-    const container = document.getElementById('dashboard-levels-preview');
+    const container = document.getElementById("dashboard-levels-preview");
     if (!container || !LessonData) return;
 
     // Tampilkan 4 level mulai dari level pertama yang belum selesai (atau 4 level terakhir bila semua tamat).
-    const isDone = (level) => level.lessons.every(l => user.completedLessons.includes(`${level.id}-${l.id}`));
-    let startIdx = LessonData.levels.findIndex(level => !isDone(level));
+    const isDone = (level) =>
+      level.lessons.every((l) =>
+        user.completedLessons.includes(`${level.id}-${l.id}`),
+      );
+    let startIdx = LessonData.levels.findIndex((level) => !isDone(level));
     if (startIdx === -1) startIdx = Math.max(0, LessonData.levels.length - 4);
 
-    const items = LessonData.levels.slice(startIdx, startIdx + 4).map(level => {
-      const isUnlocked = user.unlockedLevels.includes(level.id);
-      const completedCount = level.lessons.filter(l => user.completedLessons.includes(`${level.id}-${l.id}`)).length;
-      const pct = Math.round((completedCount / level.lessons.length) * 100);
-      const state = isUnlocked ? (pct >= 100 ? 'completed' : 'available') : 'locked';
-      const stateLabel = state === 'completed' ? '✓ Selesai' : state === 'available' ? '▶ Tersedia' : '🔒 Terkunci';
+    const items = LessonData.levels
+      .slice(startIdx, startIdx + 4)
+      .map((level) => {
+        const isUnlocked = user.unlockedLevels.includes(level.id);
+        const completedCount = level.lessons.filter((l) =>
+          user.completedLessons.includes(`${level.id}-${l.id}`),
+        ).length;
+        const pct = Math.round((completedCount / level.lessons.length) * 100);
+        const state = isUnlocked
+          ? pct >= 100
+            ? "completed"
+            : "available"
+          : "locked";
+        const stateLabel =
+          state === "completed"
+            ? "✓ Selesai"
+            : state === "available"
+              ? "▶ Tersedia"
+              : "🔒 Terkunci";
+        const trackId = LessonData.getTrackId(level);
 
-      return `
-        <button class="level-preview-card card card-hover card-interactive" type="button" data-open-learning-path aria-label="Buka ${LessonData.getLevelLabel(level)}: ${this._escapeHtml(level.title)}">
+        return `
+        <button class="level-preview-card card card-hover card-interactive track-${trackId}" type="button" data-open-learning-path data-track="${trackId}" aria-label="Buka ${LessonData.getLevelLabel(level)}: ${this._escapeHtml(level.title)}">
           <span class="level-preview-icon" aria-hidden="true">${level.icon}</span>
           <span class="level-preview-level">${LessonData.getLevelLabel(level)}</span>
           <span class="level-preview-title">${this._escapeHtml(level.title)}</span>
@@ -180,79 +253,130 @@ window.Navigation = {
           <span class="level-preview-meta"><span>${completedCount}/${level.lessons.length}</span><span class="status-note">${stateLabel}</span></span>
         </button>
       `;
-    }).join('');
+      })
+      .join("");
 
     container.innerHTML = items;
-    container.style.display = 'flex';
+    container.style.display = "flex";
 
-    container.querySelectorAll('[data-open-learning-path]').forEach(card => {
-      card.addEventListener('click', () => this.goto('learning-path'));
+    container.querySelectorAll("[data-open-learning-path]").forEach((card) => {
+      card.addEventListener("click", () => this.goto("learning-path"));
     });
   },
 
-  /** Jalur yang tampil di Learning Path: ikut jalur lesson terakhir yang dibuka, default HTML. */
+  /**
+   * Jalur yang tampil di Learning Path.
+   * Urutan: pilihan manual user (tab/tombol) → jalur tersimpan di State (tab terakhir) →
+   * jalur lesson terakhir yang dibuka → default HTML.
+   */
   _getActivePathTrack(user) {
     if (this._pathTrack) return this._pathTrack;
-    const last = parseInt(String(user.lastLesson || '').split('-')[0], 10);
-    return Number.isFinite(last) ? LessonData.getTrackId(last) : 'html';
+    const saved =
+      window.State && typeof window.State.getActiveTrack === "function"
+        ? window.State.getActiveTrack()
+        : "";
+    if (saved && LessonData.getLevelsByTrack(saved).length) return saved;
+    const last = parseInt(String(user.lastLesson || "").split("-")[0], 10);
+    return Number.isFinite(last) ? LessonData.getTrackId(last) : "html";
   },
 
   renderLearningPath() {
-    const container = document.getElementById('learning-path-container');
+    const container = document.getElementById("learning-path-container");
     if (!container || !LessonData) return;
 
-    if (window.LessonEngine && LessonEngine.syncUnlocks) LessonEngine.syncUnlocks();
+    if (window.LessonEngine && LessonEngine.syncUnlocks)
+      LessonEngine.syncUnlocks();
     const user = Storage.getUser();
     const activeTrack = this._getActivePathTrack(user);
 
     // --- tab jalur (HTML | CSS) ---
-    const tabs = LessonData.tracks.filter(t => LessonData.getLevelsByTrack(t.id).length).map(t => {
-      const levels = LessonData.getLevelsByTrack(t.id);
-      const total = levels.reduce((n, lv) => n + lv.lessons.length, 0);
-      const done = levels.reduce((n, lv) => n + lv.lessons.filter(l => user.completedLessons.includes(`${lv.id}-${l.id}`)).length, 0);
-      const locked = false;
-      const isActive = t.id === activeTrack;
-      return `
-        <button type="button" class="track-tab ${isActive ? 'is-active' : ''}" data-track="${t.id}" role="tab" aria-selected="${isActive}">
-          <span class="track-tab-icon" aria-hidden="true">${locked ? '🔒' : t.icon}</span>
+    const tabs = LessonData.tracks
+      .filter((t) => LessonData.getLevelsByTrack(t.id).length)
+      .map((t) => {
+        const levels = LessonData.getLevelsByTrack(t.id);
+        const total = levels.reduce((n, lv) => n + lv.lessons.length, 0);
+        const done = levels.reduce(
+          (n, lv) =>
+            n +
+            lv.lessons.filter((l) =>
+              user.completedLessons.includes(`${lv.id}-${l.id}`),
+            ).length,
+          0,
+        );
+        const locked = false;
+        const isActive = t.id === activeTrack;
+        return `
+        <button type="button" class="track-tab ${isActive ? "is-active" : ""}" data-track="${t.id}" role="tab" aria-selected="${isActive}">
+          <span class="track-tab-icon" aria-hidden="true">${locked ? "🔒" : t.icon}</span>
           <span class="track-tab-text"><strong>Jalur ${this._escapeHtml(t.title)}</strong><small>${done}/${total} lesson · ${this._escapeHtml(t.description)}</small></span>
         </button>`;
-    }).join('');
+      })
+      .join("");
 
-    const html = LessonData.getLevelsByTrack(activeTrack).map(level => {
-      const isUnlocked = user.unlockedLevels.includes(level.id);
-      const completedLessons = level.lessons.filter(l => user.completedLessons.includes(`${level.id}-${l.id}`)).length;
-      const isComplete = completedLessons >= level.lessons.length;
-      const pct = Math.round((completedLessons / level.lessons.length) * 100);
-      const hasProgress = completedLessons > 0 && !isComplete;
-      const status = isComplete ? 'completed' : !isUnlocked ? 'locked' : hasProgress ? 'progress' : 'available';
-      const statusLabel = isComplete ? '✓ Selesai' : !isUnlocked ? '🔒 Terkunci' : hasProgress ? '▶ Sedang dipelajari' : '▶ Tersedia';
-      const prev = LessonData.getLevel(level.id - 1);
-      const crossTrack = !!prev && LessonData.getTrackId(prev) !== LessonData.getTrackId(level);
-      const lockReason = !isUnlocked && prev
-        ? `<p class="level-lock-note">🔒 Selesaikan ${LessonData.getLevelLabel(prev)}${crossTrack ? ' (Final Project jalur HTML)' : ''} terlebih dahulu</p>`
-        : '';
+    const html =
+      `<div class="track-content track-${activeTrack}">` +
+      LessonData.getLevelsByTrack(activeTrack)
+        .map((level) => {
+          const isUnlocked = user.unlockedLevels.includes(level.id);
+          const completedLessons = level.lessons.filter((l) =>
+            user.completedLessons.includes(`${level.id}-${l.id}`),
+          ).length;
+          const isComplete = completedLessons >= level.lessons.length;
+          const pct = Math.round(
+            (completedLessons / level.lessons.length) * 100,
+          );
+          const hasProgress = completedLessons > 0 && !isComplete;
+          const status = isComplete
+            ? "completed"
+            : !isUnlocked
+              ? "locked"
+              : hasProgress
+                ? "progress"
+                : "available";
+          const statusLabel = isComplete
+            ? "✓ Selesai"
+            : !isUnlocked
+              ? "🔒 Terkunci"
+              : hasProgress
+                ? "▶ Sedang dipelajari"
+                : "▶ Tersedia";
+          const prev = LessonData.getLevel(level.id - 1);
+          const crossTrack =
+            !!prev &&
+            LessonData.getTrackId(prev) !== LessonData.getTrackId(level);
+          const lockReason =
+            !isUnlocked && prev
+              ? `<p class="level-lock-note">🔒 Selesaikan ${LessonData.getLevelLabel(prev)}${crossTrack ? ` (Final Project jalur ${LessonData.getTrackId(prev).toUpperCase()})` : ""} terlebih dahulu</p>`
+              : "";
 
-      const lessonsHtml = level.lessons.map(lesson => {
-        const key = `${level.id}-${lesson.id}`;
-        const isDone = user.completedLessons.includes(key);
-        const canClick = isUnlocked;
-        const isCurrent = user.lastLesson === key && !isDone;
-        const itemState = isDone ? 'completed' : !canClick ? 'locked' : isCurrent ? 'progress' : 'available';
-        return `
-          <button class="lesson-item lesson-item-${itemState}" type="button" data-level="${level.id}" data-lesson="${lesson.id}" ${canClick ? '' : 'disabled'}>
+          const lessonsHtml = level.lessons
+            .map((lesson) => {
+              const key = `${level.id}-${lesson.id}`;
+              const isDone = user.completedLessons.includes(key);
+              const canClick = isUnlocked;
+              const isCurrent = user.lastLesson === key && !isDone;
+              const itemState = isDone
+                ? "completed"
+                : !canClick
+                  ? "locked"
+                  : isCurrent
+                    ? "progress"
+                    : "available";
+              return `
+          <button class="lesson-item lesson-item-${itemState}" type="button" data-level="${level.id}" data-lesson="${lesson.id}" ${canClick ? "" : "disabled"}>
             <span class="lesson-item-main">
-              <span class="lesson-item-icon" aria-hidden="true">${isDone ? '✅' : canClick ? '📖' : '🔒'}</span>
+              <span class="lesson-item-icon" aria-hidden="true">${isDone ? "✅" : canClick ? "📖" : "🔒"}</span>
               <span class="lesson-item-title">${this._escapeHtml(lesson.title)}</span>
-              ${isCurrent ? '<span class="badge badge-progress">SEDANG DIPELAJARI</span>' : ''}
-              ${lesson.isProject ? '<span class="badge badge-available">PROJECT</span>' : ''}
+              ${isCurrent ? '<span class="badge badge-progress">SEDANG DIPELAJARI</span>' : ""}
+              ${lesson.isProject ? '<span class="badge badge-available">PROJECT</span>' : ""}
             </span>
-            <span class="lesson-item-meta">${lesson.xpReward} XP ${isDone ? '✓' : '→'}</span>
+            <span class="lesson-item-meta">${lesson.xpReward} XP ${isDone ? "✓" : "→"}</span>
           </button>
         `;
-      }).join('');
+            })
+            .join("");
 
-      return `
+          return `
         <section class="card level-card level-state-${status}">
           <div class="level-card-header">
             <div class="level-card-icon" aria-hidden="true">${level.icon}</div>
@@ -266,79 +390,106 @@ window.Navigation = {
           <div class="lesson-list">${lessonsHtml}</div>
         </section>
       `;
-    }).join('');
+        })
+        .join("");
 
-    container.innerHTML = `<div class="track-tabs" role="tablist" aria-label="Pilih jalur belajar">${tabs}</div>${html}`;
+    container.innerHTML = `<div class="track-tabs" role="tablist" aria-label="Pilih jalur belajar">${tabs}</div>${html}</div>`;
 
-    container.querySelectorAll('.track-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        this._pathTrack = tab.dataset.track;
+    container.querySelectorAll(".track-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        this.setActiveTrack(tab.dataset.track);
         this.renderLearningPath();
       });
     });
-    container.querySelectorAll('.lesson-item:not(:disabled)').forEach(item => {
-      item.addEventListener('click', () => {
-        LessonEngine.open(Number(item.dataset.level), Number(item.dataset.lesson));
+    container
+      .querySelectorAll(".lesson-item:not(:disabled)")
+      .forEach((item) => {
+        item.addEventListener("click", () => {
+          LessonEngine.open(
+            Number(item.dataset.level),
+            Number(item.dataset.lesson),
+          );
+        });
       });
-    });
   },
 
   renderProfile() {
     const user = Storage.getUser();
-    const totalLessons = LessonData?.levels?.reduce((sum, level) => sum + level.lessons.length, 0) || 60;
-    const pct = Math.min(100, Math.round((user.completedLessons.length / totalLessons) * 100));
+    const totalLessons =
+      LessonData?.levels?.reduce(
+        (sum, level) => sum + level.lessons.length,
+        0,
+      ) || 160;
+    const pct = Math.min(
+      100,
+      Math.round((user.completedLessons.length / totalLessons) * 100),
+    );
 
     const el = (id) => document.getElementById(id);
-    if (el('profile-name')) el('profile-name').textContent = user.username || 'Pelajar';
-    if (el('profile-xp')) el('profile-xp').textContent = user.xp;
-    if (el('profile-streak')) el('profile-streak').textContent = user.streak;
-    if (el('profile-hearts')) el('profile-hearts').textContent = user.hearts;
-    if (el('profile-progress-bar')) el('profile-progress-bar').style.width = `${pct}%`;
-    if (el('profile-progress-text')) el('profile-progress-text').textContent = `${pct}%`;
+    if (el("profile-name"))
+      el("profile-name").textContent = user.username || "Pelajar";
+    if (el("profile-xp")) el("profile-xp").textContent = user.xp;
+    if (el("profile-streak")) el("profile-streak").textContent = user.streak;
+    if (el("profile-hearts")) el("profile-hearts").textContent = user.hearts;
+    if (el("profile-progress-bar"))
+      el("profile-progress-bar").style.width = `${pct}%`;
+    if (el("profile-progress-text"))
+      el("profile-progress-text").textContent = `${pct}%`;
   },
 
   initKeyboardShortcuts() {
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener("keydown", (e) => {
       const modalOpen = (() => {
-        const ov = document.getElementById('modal-overlay');
-        return !!ov && ov.style.display !== 'none';
+        const ov = document.getElementById("modal-overlay");
+        return !!ov && ov.style.display !== "none";
       })();
 
       // Esc: close modal (works even while typing)
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         if (modalOpen) this.hideModal();
-        const sm = document.getElementById('shortcut-modal');
-        if (sm && sm.style.display !== 'none') sm.style.display = 'none';
+        const sm = document.getElementById("shortcut-modal");
+        if (sm && sm.style.display !== "none") sm.style.display = "none";
         return;
       }
 
       // Skip if typing in an input/textarea/select (CodeMirror uses a hidden textarea)
       const target = e.target;
       const tag = target && target.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (target && target.isContentEditable)) return;
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        (target && target.isContentEditable)
+      )
+        return;
       if (modalOpen || e.altKey || e.metaKey) return;
 
-      const inLesson = this.currentView === 'lesson' || document.getElementById('view-lesson')?.classList.contains('active');
-      const isVisible = (el) => !!el && el.style.display !== 'none' && el.offsetParent !== null;
+      const inLesson =
+        this.currentView === "lesson" ||
+        document.getElementById("view-lesson")?.classList.contains("active");
+      const isVisible = (el) =>
+        !!el && el.style.display !== "none" && el.offsetParent !== null;
 
       // Shift+Enter: run playground preview (only on the Playground page)
-      if (e.key === 'Enter' && e.shiftKey) {
-        if (this.currentView === 'playground') {
+      if (e.key === "Enter" && e.shiftKey) {
+        if (this.currentView === "playground") {
           e.preventDefault();
-          document.getElementById('btn-playground-run')?.click();
+          document.getElementById("btn-playground-run")?.click();
         }
         return;
       }
 
       // Enter / Ctrl+Enter: check or next — ONLY while a lesson is on screen
-      if (e.key === 'Enter') {
+      if (e.key === "Enter") {
         if (!inLesson) return;
         // A focused button/link already activates itself on Enter; don't fire twice.
         // (Answer choices are the exception: Enter there means "Check".)
-        const isChoice = !!(target.classList && target.classList.contains('mc-option'));
-        if ((tag === 'BUTTON' || tag === 'A') && !isChoice) return;
-        const btnCheck = document.getElementById('btn-check-answer');
-        const btnNext = document.getElementById('btn-next-slide');
+        const isChoice = !!(
+          target.classList && target.classList.contains("mc-option")
+        );
+        if ((tag === "BUTTON" || tag === "A") && !isChoice) return;
+        const btnCheck = document.getElementById("btn-check-answer");
+        const btnNext = document.getElementById("btn-next-slide");
         if (isVisible(btnCheck)) {
           e.preventDefault();
           btnCheck.click();
@@ -352,20 +503,22 @@ window.Navigation = {
       if (!inLesson) return;
 
       // 1-4: select MC option
-      if (['1', '2', '3', '4'].includes(e.key)) {
-        const opts = document.querySelectorAll('.mc-option');
+      if (["1", "2", "3", "4"].includes(e.key)) {
+        const opts = document.querySelectorAll(".mc-option");
         const idx = parseInt(e.key, 10) - 1;
         if (opts[idx]) opts[idx].click();
         return;
       }
 
       // Arrow Up/Down: navigate MC options
-      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        const opts = Array.from(document.querySelectorAll('.mc-option'));
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        const opts = Array.from(document.querySelectorAll(".mc-option"));
         if (opts.length > 0) {
           e.preventDefault();
-          const current = opts.findIndex(o => o.classList.contains('mc-selected'));
-          let next = e.key === 'ArrowDown' ? current + 1 : current - 1;
+          const current = opts.findIndex((o) =>
+            o.classList.contains("mc-selected"),
+          );
+          let next = e.key === "ArrowDown" ? current + 1 : current - 1;
           if (next < 0) next = opts.length - 1;
           if (next >= opts.length) next = 0;
           opts[next].click();
@@ -375,28 +528,33 @@ window.Navigation = {
   },
 
   showModal(html) {
-    const content = document.getElementById('modal-content');
-    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById("modal-content");
+    const overlay = document.getElementById("modal-overlay");
     if (content) content.innerHTML = html;
-    if (overlay) overlay.style.display = 'flex';
+    if (overlay) overlay.style.display = "flex";
   },
 
   hideModal() {
-    const overlay = document.getElementById('modal-overlay');
-    if (overlay) overlay.style.display = 'none';
+    const overlay = document.getElementById("modal-overlay");
+    if (overlay) overlay.style.display = "none";
   },
 
-  showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
+  showToast(message, type = "success") {
+    const toast = document.getElementById("toast");
     if (!toast) return;
 
     toast.textContent = message;
-    toast.style.background = type === 'success' ? 'var(--pk-blue-dark)' : (type === 'error' ? 'var(--pk-error)' : 'var(--pk-navy)');
-    toast.classList.add('show');
+    toast.style.background =
+      type === "success"
+        ? "var(--pk-blue-dark)"
+        : type === "error"
+          ? "var(--pk-error)"
+          : "var(--pk-navy)";
+    toast.classList.add("show");
 
     clearTimeout(this._toastTimer);
     this._toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
+      toast.classList.remove("show");
     }, 3000);
-  }
+  },
 };

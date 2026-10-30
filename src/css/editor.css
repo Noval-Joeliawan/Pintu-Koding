@@ -27,6 +27,50 @@
   box-shadow: 0 5px 0 var(--pk-border);
 }
 
+/* === TAB BERKAS (Jalur JavaScript: script.js | index.html) === */
+.editor-file-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.editor-file-tab {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 7px;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.editor-file-tab:hover {
+  color: #e2e8f0;
+  border-color: #64748b;
+}
+
+.editor-file-tab:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 1px;
+}
+
+.editor-file-tab.is-active {
+  color: #fbbf24;
+  background: #0f172a;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+}
+
+html[data-theme="dark"] .editor-file-tab.is-active {
+  color: #fcd34d;
+}
+
 /* === TOOLBAR === */
 .editor-toolbar {
   display: flex;

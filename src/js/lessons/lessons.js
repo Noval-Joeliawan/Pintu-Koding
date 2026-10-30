@@ -16,15 +16,16 @@ window.LessonEngine = {
 
     const lesson = LessonData.getLesson(levelId, lessonId);
     if (!lesson) {
-      console.warn('Lesson not found:', levelId, lessonId);
+      console.warn("Lesson not found:", levelId, lessonId);
       return;
     }
 
     this.levelId = levelId;
     this.lessonId = lessonId;
     this._lessonData = lesson;
-    // Learning Path kembali ke jalur (HTML/CSS) tempat pelajaran ini berada
-    if (window.Navigation) Navigation._pathTrack = LessonData.getTrackId(levelId);
+    // Learning Path kembali ke jalur (HTML/CSS/JS) tempat pelajaran ini berada
+    if (window.Navigation && Navigation.setActiveTrack)
+      Navigation.setActiveTrack(LessonData.getTrackId(levelId));
     this.slides = lesson.slides || [];
     this.currentIndex = 0;
     this.hasAnswered = false;
@@ -39,30 +40,33 @@ window.LessonEngine = {
     }
 
     // Switch to lesson view
-    if (window.Navigation) Navigation.currentView = 'lesson';
-    document.body.classList.add('in-lesson');
-    document.querySelectorAll('.content-view').forEach(el => {
-      el.style.display = 'none';
-      el.classList.remove('active');
+    if (window.Navigation) Navigation.currentView = "lesson";
+    document.body.classList.add("in-lesson");
+    document.querySelectorAll(".content-view").forEach((el) => {
+      el.style.display = "none";
+      el.classList.remove("active");
     });
-    const lessonView = document.getElementById('view-lesson');
+    const lessonView = document.getElementById("view-lesson");
     if (lessonView) {
-      lessonView.style.display = 'block';
-      lessonView.classList.add('active');
+      lessonView.style.display = "block";
+      lessonView.classList.add("active");
     }
 
     // Hide sidebar/bottom-nav during lesson
-    const sidebar = document.getElementById('sidebar-nav');
-    const bn = document.getElementById('bottom-nav');
-    const mtb = document.getElementById('mobile-top-bar');
-    if (sidebar) sidebar.style.display = 'none';
-    if (bn) bn.style.display = 'none';
+    const sidebar = document.getElementById("sidebar-nav");
+    const bn = document.getElementById("bottom-nav");
+    const mtb = document.getElementById("mobile-top-bar");
+    if (sidebar) sidebar.style.display = "none";
+    if (bn) bn.style.display = "none";
     // Keep mobile-top-bar but we can show it
 
     // Update lesson header
-    const lvlBadge = document.getElementById('lesson-level-badge');
-    const titleLabel = document.getElementById('lesson-title-label');
-    if (lvlBadge) lvlBadge.textContent = this.isPracticeMode ? `Mode Latihan` : LessonData.getLevelLabel(levelId);
+    const lvlBadge = document.getElementById("lesson-level-badge");
+    const titleLabel = document.getElementById("lesson-title-label");
+    if (lvlBadge)
+      lvlBadge.textContent = this.isPracticeMode
+        ? `Mode Latihan`
+        : LessonData.getLevelLabel(levelId);
     if (titleLabel) {
       titleLabel.innerHTML = this.isPracticeMode
         ? `${lesson.title} <span class="badge-practice" style="background:var(--pk-error-light);color:var(--pk-error);font-size:0.75rem;padding:0.2rem 0.6rem;border-radius:12px;font-weight:600;margin-left:0.5rem">❤️ +1 Heart jika selesai</span>`
@@ -70,12 +74,12 @@ window.LessonEngine = {
     }
 
     // Show footer buttons
-    const footer = document.getElementById('lesson-footer');
-    if (footer) footer.style.display = 'flex';
+    const footer = document.getElementById("lesson-footer");
+    if (footer) footer.style.display = "flex";
 
     // Reset btn-prev-slide visibility
-    const btnPrev = document.getElementById('btn-prev-slide');
-    if (btnPrev) btnPrev.style.display = '';
+    const btnPrev = document.getElementById("btn-prev-slide");
+    if (btnPrev) btnPrev.style.display = "";
 
     this.renderSlide();
   },
@@ -84,16 +88,19 @@ window.LessonEngine = {
    * FR-3.1: Buka Mode Latihan untuk memulihkan nyawa (+1 Heart tanpa XP)
    */
   openPractice(levelId, lessonId) {
-    const user = (typeof window !== 'undefined' && window.State)
-      ? window.State.getUser()
-      : (window.Storage ? window.Storage.getUser() : null);
+    const user =
+      typeof window !== "undefined" && window.State
+        ? window.State.getUser()
+        : window.Storage
+          ? window.Storage.getUser()
+          : null;
 
     let targetLvl = levelId ? parseInt(levelId, 10) : null;
     let targetLsn = lessonId ? parseInt(lessonId, 10) : null;
 
     if (!targetLvl || !targetLsn) {
       if (user && user.completedLessons && user.completedLessons.length > 0) {
-        const parts = user.completedLessons[0].split('-');
+        const parts = user.completedLessons[0].split("-");
         targetLvl = parseInt(parts[0], 10);
         targetLsn = parseInt(parts[1], 10);
       } else {
@@ -106,14 +113,14 @@ window.LessonEngine = {
   },
 
   close() {
-    document.body.classList.remove('in-lesson');
+    document.body.classList.remove("in-lesson");
     // Restore sidebar/bottom-nav
-    const sidebar = document.getElementById('sidebar-nav');
-    const bn = document.getElementById('bottom-nav');
-    if (sidebar) sidebar.style.display = '';
-    if (bn) bn.style.display = '';
+    const sidebar = document.getElementById("sidebar-nav");
+    const bn = document.getElementById("bottom-nav");
+    if (sidebar) sidebar.style.display = "";
+    if (bn) bn.style.display = "";
 
-    Navigation.goto('learning-path');
+    Navigation.goto("learning-path");
   },
 
   renderSlide() {
@@ -123,37 +130,48 @@ window.LessonEngine = {
     this.hasAnswered = false;
 
     // Progress
-    const pct = Math.round(((this.currentIndex + 1) / this.slides.length) * 100);
-    const progressFill = document.getElementById('lesson-progress-fill');
-    const stepInd = document.getElementById('lesson-step-indicator');
+    const pct = Math.round(
+      ((this.currentIndex + 1) / this.slides.length) * 100,
+    );
+    const progressFill = document.getElementById("lesson-progress-fill");
+    const stepInd = document.getElementById("lesson-step-indicator");
     if (progressFill) progressFill.style.width = `${pct}%`;
-    if (stepInd) stepInd.textContent = `${this.currentIndex + 1} / ${this.slides.length}`;
+    if (stepInd)
+      stepInd.textContent = `${this.currentIndex + 1} / ${this.slides.length}`;
 
     // Determine if exercise
-    const EXERCISE_TYPES = ['multiple-choice', 'fill-code', 'drag-drop', 'fix-code', 'challenge', 'mini-project', 'code-editor'];
+    const EXERCISE_TYPES = [
+      "multiple-choice",
+      "fill-code",
+      "drag-drop",
+      "fix-code",
+      "challenge",
+      "mini-project",
+      "code-editor",
+    ];
     this.isExerciseSlide = EXERCISE_TYPES.includes(slide.type);
 
-    const btnNext = document.getElementById('btn-next-slide');
-    const btnCheck = document.getElementById('btn-check-answer');
+    const btnNext = document.getElementById("btn-next-slide");
+    const btnCheck = document.getElementById("btn-check-answer");
 
     if (this.isExerciseSlide) {
-      if (btnNext) btnNext.style.display = 'none';
-      if (btnCheck) btnCheck.style.display = '';
+      if (btnNext) btnNext.style.display = "none";
+      if (btnCheck) btnCheck.style.display = "";
     } else {
-      if (btnNext) btnNext.style.display = '';
-      if (btnCheck) btnCheck.style.display = 'none';
+      if (btnNext) btnNext.style.display = "";
+      if (btnCheck) btnCheck.style.display = "none";
     }
 
     // Last slide label
     const isLast = this.currentIndex === this.slides.length - 1;
     if (btnNext && !this.isExerciseSlide && isLast) {
-      btnNext.textContent = '🎉 Selesai';
+      btnNext.textContent = "🎉 Selesai";
     } else if (btnNext) {
-      btnNext.innerHTML = 'Lanjut → <kbd>↵</kbd>';
+      btnNext.innerHTML = "Lanjut → <kbd>↵</kbd>";
     }
 
     // Render content
-    const body = document.getElementById('lesson-body');
+    const body = document.getElementById("lesson-body");
     if (!body) return;
 
     if (this.isExerciseSlide) {
@@ -169,49 +187,58 @@ window.LessonEngine = {
   _renderMaterial(slide, container) {
     let html = '<div class="slide-material">';
 
-    switch(slide.type) {
-      case 'material':
-        if (slide.title) html += `<h2 class="slide-title">${Exercises._escapeHtml(slide.icon || '📖')} ${Exercises.richText(slide.title)}</h2>`;
-        if (slide.content) html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
+    switch (slide.type) {
+      case "material":
+        if (slide.title)
+          html += `<h2 class="slide-title">${Exercises._escapeHtml(slide.icon || "📖")} ${Exercises.richText(slide.title)}</h2>`;
+        if (slide.content)
+          html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
         if (slide.code) {
           html += `<div class="code-block"><pre>${Exercises._escapeHtml(slide.code)}</pre></div>`;
         }
         break;
 
-      case 'example':
-        if (slide.title) html += `<h2 class="slide-title">💡 ${Exercises.richText(slide.title)}</h2>`;
+      case "example":
+        if (slide.title)
+          html += `<h2 class="slide-title">💡 ${Exercises.richText(slide.title)}</h2>`;
         if (slide.code) {
           html += `<div class="code-block example-block"><pre>${Exercises._escapeHtml(slide.code)}</pre></div>`;
         }
-        if (slide.content) html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
+        if (slide.content)
+          html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
         break;
 
-      case 'review':
-        html += `<h2 class="slide-title">📋 ${Exercises.richText(slide.title || 'Ringkasan')}</h2>`;
+      case "review":
+        html += `<h2 class="slide-title">📋 ${Exercises.richText(slide.title || "Ringkasan")}</h2>`;
         if (slide.points && slide.points.length) {
           html += '<ul class="review-list">';
-          slide.points.forEach(p => { html += `<li>✓ ${Exercises.richText(p)}</li>`; });
-          html += '</ul>';
+          slide.points.forEach((p) => {
+            html += `<li>✓ ${Exercises.richText(p)}</li>`;
+          });
+          html += "</ul>";
         }
-        if (slide.content) html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
+        if (slide.content)
+          html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
         break;
 
       default:
-        if (slide.title) html += `<h2 class="slide-title">${Exercises.richText(slide.title)}</h2>`;
-        if (slide.content) html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
+        if (slide.title)
+          html += `<h2 class="slide-title">${Exercises.richText(slide.title)}</h2>`;
+        if (slide.content)
+          html += `<p class="slide-content">${Exercises.richText(slide.content)}</p>`;
     }
 
-    html += '</div>';
+    html += "</div>";
     container.innerHTML = html;
   },
 
   next() {
     // Block if exercise and not answered (except code-editor which is free)
     if (this.isExerciseSlide && !this.hasAnswered) {
-      if (this.slides[this.currentIndex].type === 'code-editor') {
+      if (this.slides[this.currentIndex].type === "code-editor") {
         // Allow pass-through
       } else {
-        Navigation.showToast('Jawab soal terlebih dahulu!', 'error');
+        Navigation.showToast("Jawab soal terlebih dahulu!", "error");
         return;
       }
     }
@@ -231,7 +258,7 @@ window.LessonEngine = {
     }
   },
 
-  checkAnswer() {
+  async checkAnswer() {
     if (this.hasAnswered) return;
     if (!this.isExerciseSlide) return;
 
@@ -241,11 +268,17 @@ window.LessonEngine = {
       return;
     }
 
-    const result = Exercises.check();
+    // Validasi Jalur JavaScript berjalan async (eksekusi di sandbox) — tunggu hasilnya.
+    const result = await Exercises.check();
     if (!result) return;
 
-    const container = document.getElementById('lesson-body');
-    Exercises.showFeedback(container, result.correct, result.explanation, result._rich);
+    const container = document.getElementById("lesson-body");
+    Exercises.showFeedback(
+      container,
+      result.correct,
+      result.explanation,
+      result._rich,
+    );
 
     if (result.correct) {
       // Award XP for exercise (anti-double)
@@ -253,22 +286,26 @@ window.LessonEngine = {
       this.hasAnswered = true;
 
       // Show next button, hide check
-      const btnNext = document.getElementById('btn-next-slide');
-      const btnCheck = document.getElementById('btn-check-answer');
-      if (btnCheck) btnCheck.style.display = 'none';
+      const btnNext = document.getElementById("btn-next-slide");
+      const btnCheck = document.getElementById("btn-check-answer");
+      if (btnCheck) btnCheck.style.display = "none";
       if (btnNext) {
-        btnNext.style.display = '';
+        btnNext.style.display = "";
         // Check if last slide
         if (this.currentIndex === this.slides.length - 1) {
-          btnNext.textContent = '🎉 Selesai';
+          btnNext.textContent = "🎉 Selesai";
         }
       }
 
       // Track first code run for achievement
-      if (this.slides[this.currentIndex].type === 'challenge' || this.slides[this.currentIndex].type === 'mini-project' || this.slides[this.currentIndex].type === 'code-editor') {
+      if (
+        this.slides[this.currentIndex].type === "challenge" ||
+        this.slides[this.currentIndex].type === "mini-project" ||
+        this.slides[this.currentIndex].type === "code-editor"
+      ) {
         const user = Storage.getUser();
-        if (!user.completedExercises.some(e => e.startsWith('run_'))) {
-          user.completedExercises.push('run_first');
+        if (!user.completedExercises.some((e) => e.startsWith("run_"))) {
+          user.completedExercises.push("run_first");
           Storage.saveUser(user);
         }
       }
@@ -322,8 +359,8 @@ window.LessonEngine = {
     const user = Storage.getUser();
     const levelLessons = LessonData.getLevel(levelId);
     if (levelLessons) {
-      const allDone = levelLessons.lessons.every(l =>
-        user.completedLessons.includes(`${levelId}-${l.id}`)
+      const allDone = levelLessons.lessons.every((l) =>
+        user.completedLessons.includes(`${levelId}-${l.id}`),
       );
       if (allDone) {
         this._completeLevel(levelId);
@@ -338,9 +375,10 @@ window.LessonEngine = {
     // Award level XP (anti-double)
     const xpBeforeLevel = Storage.getUser().xp;
     XP.addLevelComplete(levelId);
-    this._xpGained = (this._xpGained || 0) + Math.max(0, Storage.getUser().xp - xpBeforeLevel);
+    this._xpGained =
+      (this._xpGained || 0) + Math.max(0, Storage.getUser().xp - xpBeforeLevel);
 
-    // Unlock next level (urutan level berlanjut dari jalur HTML ke jalur CSS)
+    // Unlock next level (urutan level berlanjut lintas jalur: HTML → CSS → JS)
     const user = Storage.getUser();
     const nextLevel = LessonData.getLevel(levelId + 1);
     const nextLevelId = nextLevel ? nextLevel.id : null;
@@ -348,19 +386,24 @@ window.LessonEngine = {
       user.unlockedLevels.push(nextLevelId);
       Storage.saveUser(user);
     }
-    const crossesTrack = !!nextLevel && LessonData.getTrackId(nextLevel) !== LessonData.getTrackId(levelId);
+    const crossesTrack =
+      !!nextLevel &&
+      LessonData.getTrackId(nextLevel) !== LessonData.getTrackId(levelId);
+    const nextIcon = nextLevel
+      ? LessonData.getTrackIcon(LessonData.getTrackId(nextLevel))
+      : "🎉";
     const unlockMsg = !nextLevel
-      ? '🎉 Semua level selesai!'
+      ? "🎉 Semua level selesai! Kamu luar biasa!"
       : crossesTrack
-        ? `🎨 Jalur ${LessonData.getTrackId(nextLevel).toUpperCase()} terbuka! Lanjut ke ${LessonData.getLevelLabel(nextLevel)}.`
+        ? `${nextIcon} Jalur ${LessonData.getTrackId(nextLevel).toUpperCase()} terbuka! Lanjut ke ${LessonData.getLevelLabel(nextLevel)}.`
         : `🔓 ${LessonData.getLevelLabel(nextLevel)} terbuka!`;
 
     Achievements.check();
 
     // Show level complete screen
-    const container = document.getElementById('lesson-body');
-    const footer = document.getElementById('lesson-footer');
-    if (footer) footer.style.display = 'none';
+    const container = document.getElementById("lesson-body");
+    const footer = document.getElementById("lesson-footer");
+    if (footer) footer.style.display = "none";
 
     if (container) {
       container.innerHTML = `
@@ -378,26 +421,29 @@ window.LessonEngine = {
   },
 
   _showLessonCompleteScreen() {
-    const container = document.getElementById('lesson-body');
-    const footer = document.getElementById('lesson-footer');
-    if (footer) footer.style.display = 'none';
+    const container = document.getElementById("lesson-body");
+    const footer = document.getElementById("lesson-footer");
+    if (footer) footer.style.display = "none";
 
     if (container) {
       container.innerHTML = `
         <div class="completion-screen">
-          <div class="completion-emoji">${this.isPracticeMode ? '💖' : '🎉'}</div>
-          <h2 class="completion-title">${this.isPracticeMode ? 'Latihan Selesai!' : 'Lesson Selesai!'}</h2>
-          ${this.isPracticeMode
-            ? '<p class="completion-xp" style="color:var(--pk-error);font-weight:700">❤️ +1 Heart Berhasil Dipulihkan!</p>'
-            : (this._xpGained > 0 ? `<p class="completion-xp">⭐ +${this._xpGained} XP</p>` : '<p class="completion-xp">✓ Lesson diulang (XP sudah diklaim)</p>')
+          <div class="completion-emoji">${this.isPracticeMode ? "💖" : "🎉"}</div>
+          <h2 class="completion-title">${this.isPracticeMode ? "Latihan Selesai!" : "Lesson Selesai!"}</h2>
+          ${
+            this.isPracticeMode
+              ? '<p class="completion-xp" style="color:var(--pk-error);font-weight:700">❤️ +1 Heart Berhasil Dipulihkan!</p>'
+              : this._xpGained > 0
+                ? `<p class="completion-xp">⭐ +${this._xpGained} XP</p>`
+                : '<p class="completion-xp">✓ Lesson diulang (XP sudah diklaim)</p>'
           }
           <p style="color:var(--pk-text-light);margin-bottom:1.5rem">
-            ${this.isPracticeMode ? 'Kamu siap melanjutkan materi belajar berikutnya.' : 'Terus semangat belajar!'}
+            ${this.isPracticeMode ? "Kamu siap melanjutkan materi belajar berikutnya." : "Terus semangat belajar!"}
           </p>
           <div class="completion-actions">
             <button class="btn btn-outline" onclick="LessonEngine.close()">Kembali ke Menu</button>
-            <button class="btn btn-primary btn-lg" onclick="${this.isPracticeMode ? 'LessonEngine.close()' : 'LessonEngine._goNextLesson()'}">
-              ${this.isPracticeMode ? 'Lanjut Belajar →' : 'Lesson Berikutnya →'}
+            <button class="btn btn-primary btn-lg" onclick="${this.isPracticeMode ? "LessonEngine.close()" : "LessonEngine._goNextLesson()"}">
+              ${this.isPracticeMode ? "Lanjut Belajar →" : "Lesson Berikutnya →"}
             </button>
           </div>
         </div>
@@ -407,10 +453,13 @@ window.LessonEngine = {
 
   _goNextLesson() {
     const level = LessonData.getLevel(this.levelId);
-    if (!level) { this.close(); return; }
+    if (!level) {
+      this.close();
+      return;
+    }
 
     const nextLessonId = this.lessonId + 1;
-    const nextLesson = level.lessons.find(l => l.id === nextLessonId);
+    const nextLesson = level.lessons.find((l) => l.id === nextLessonId);
     if (nextLesson) {
       this.open(this.levelId, nextLessonId);
     } else {
@@ -427,9 +476,13 @@ window.LessonEngine = {
 
   _showHeartEmptyModal() {
     const secs = Hearts.getTimerSeconds();
-    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
+    const h = Math.floor(secs / 3600)
+      .toString()
+      .padStart(2, "0");
+    const m = Math.floor((secs % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (secs % 60).toString().padStart(2, "0");
 
     Navigation.showModal(`
       <div style="text-align:center">
@@ -455,20 +508,23 @@ window.LessonEngine = {
    * belum pernah ikut terbuka walau Level 12 sudah tamat.
    */
   syncUnlocks() {
-    if (typeof LessonData === 'undefined' || typeof Storage === 'undefined') return;
+    if (typeof LessonData === "undefined" || typeof Storage === "undefined")
+      return;
     const user = Storage.getUser();
     let changed = false;
     LessonData.levels.forEach((level, i) => {
       const next = LessonData.levels[i + 1];
       if (!next) return;
-      const allDone = level.lessons.every(l => user.completedLessons.includes(`${level.id}-${l.id}`));
+      const allDone = level.lessons.every((l) =>
+        user.completedLessons.includes(`${level.id}-${l.id}`),
+      );
       if (allDone && !user.unlockedLevels.includes(next.id)) {
         user.unlockedLevels.push(next.id);
         changed = true;
       }
     });
     // Setiap jalur (HTML / CSS) bisa dimulai kapan saja: level pertamanya selalu terbuka.
-    LessonData.tracks.forEach(t => {
+    LessonData.tracks.forEach((t) => {
       const first = LessonData.getLevelsByTrack(t.id)[0];
       if (first && !user.unlockedLevels.includes(first.id)) {
         user.unlockedLevels.push(first.id);
@@ -479,23 +535,25 @@ window.LessonEngine = {
   },
 
   initListeners() {
-    if (typeof window !== 'undefined' && window.Events) {
+    if (typeof window !== "undefined" && window.Events) {
       window.Events.on(window.Events.HEARTS_EMPTY, () => {
         // Otomatis tampilkan dialog pemulihan jika modal belum terbuka
-        const modal = document.getElementById('modal-container');
-        if (!modal || modal.style.display !== 'flex') {
+        const modal = document.getElementById("modal-container");
+        if (!modal || modal.style.display !== "flex") {
           this._showHeartEmptyModal();
         }
       });
     }
-  }
+  },
 };
 
-if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-  window.addEventListener('DOMContentLoaded', () => {
+if (
+  typeof window !== "undefined" &&
+  typeof window.addEventListener === "function"
+) {
+  window.addEventListener("DOMContentLoaded", () => {
     if (window.LessonEngine && window.LessonEngine.initListeners) {
       window.LessonEngine.initListeners();
     }
   });
 }
-

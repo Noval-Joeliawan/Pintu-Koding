@@ -49,8 +49,221 @@
   }
 
   function getCSSCheck() {
-    if (typeof window !== "undefined" && window.CSSCheck) return window.CSSCheck;
-    try { return require("./css-checker.js"); } catch (e) { return null; }
+    if (typeof window !== "undefined" && window.CSSCheck)
+      return window.CSSCheck;
+    try {
+      return require("./css-checker.js");
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function getJSCheck() {
+    if (typeof window !== "undefined" && window.JSCheck) return window.JSCheck;
+    try {
+      return require("./js-checker.js");
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function normalizeOutputText(s) {
+    return String(s == null ? "" : s)
+      .replace(/\r\n/g, "\n")
+      .trim();
+  }
+
+  /**
+   * Runner bawaan (browser): eksekusi via Sandbox terisolasi (iframe + postMessage).
+   * Di lingkungan Node (pengujian), options.runner dipakai sebagai pengganti.
+   */
+  function defaultJSRunner(jsCode, opts) {
+    if (
+      typeof window !== "undefined" &&
+      window.Sandbox &&
+      typeof window.Sandbox.runForValidation === "function"
+    ) {
+      return window.Sandbox.runForValidation(jsCode, opts);
+    }
+    return Promise.resolve({
+      status: "error",
+      logs: [],
+      error: "Sandbox eksekusi JavaScript tidak tersedia.",
+      checkResults: [],
+    });
+  }
+
+  /**
+   * Validasi kode JavaScript murid (Jalur JS). Padanan async dari validateCode.
+   *
+   * @param {string} code   kode JavaScript murid
+   * @param {object} rules  { js: [rule statis], output: {...}, dom: [checkStr|{check,msg,hint}] }
+   * @param {object} options { html: potongan body untuk level DOM, runner: fn(jsCode, {html, checks}) }
+   * @returns {Promise<{success, errors:[], passed:[], hints:[]}>}
+   */
+  async function validateCodeJSAsync(code, rules, options) {
+    rules = rules || {};
+    options = options || {};
+    const errors = [];
+    const passed = [];
+    const hints = [];
+
+    // ---------- rule statis (analisis tanpa eksekusi) ----------
+    const JC = getJSCheck();
+    if (JC && Array.isArray(rules.js)) {
+      const res = JC.checkStatic(code, rules.js);
+      res.passed.forEach((p) => passed.push(p));
+      res.errors.forEach((e) => errors.push(e));
+      res.hints.forEach((h) => hints.push(h));
+    }
+
+    // ---------- rule eksekusi (output konsol & DOM) ----------
+    const needsRun =
+      !!rules.output || (Array.isArray(rules.dom) && rules.dom.length > 0);
+    if (needsRun) {
+      const runner = options.runner || defaultJSRunner;
+      const checks = (rules.dom || []).map((c) =>
+        typeof c === "string" ? c : c.check || "false",
+      );
+      let run;
+      try {
+        run = await runner(code, { html: options.html || "", checks });
+      } catch (e) {
+        run = {
+          status: "error",
+          logs: [],
+          error: (e && e.message) || String(e),
+          checkResults: [],
+        };
+      }
+
+      if (run.status === "error") {
+        errors.push(
+          "Kode kamu menghasilkan error saat dijalankan: " +
+            (run.error || "tidak diketahui"),
+        );
+        hints.push(
+          "Baca pesan errornya dengan tenang — biasanya ada tanda kutip, kurung, atau ejaan yang kurang tepat.",
+        );
+      } else {
+        const logsText = normalizeOutputText(
+          (run.logs || []).map((l) => l.text).join("\n"),
+        );
+
+        // ----- output: { equals | contains | containsAll | logCount } -----
+        const out = rules.output || {};
+        if (out.equals !== undefined) {
+          const expected = normalizeOutputText(out.equals);
+          if (logsText === expected) {
+            passed.push("Output konsol sudah persis seperti yang diminta.");
+          } else {
+            errors.push(
+              out.msg ||
+                'Output konsol belum persis. Diharapkan: "' +
+                  expected.replace(/\n/g, " ⏎ ") +
+                  '" — hasil kodemu: "' +
+                  (logsText || "(kosong)").replace(/\n/g, " ⏎ ") +
+                  '".',
+            );
+            hints.push(
+              out.hint ||
+                "Periksa urutan dan isi tiap baris console.log — termasuk spasi dan huruf besar/kecil.",
+            );
+          }
+        }
+        if (out.contains !== undefined) {
+          const needles = Array.isArray(out.contains)
+            ? out.contains
+            : [out.contains];
+          needles.forEach((needle) => {
+            if (logsText.indexOf(String(needle)) !== -1) {
+              passed.push('Output konsol memuat "' + needle + '".');
+            } else {
+              errors.push(
+                out.msg ||
+                  'Output konsol belum memuat "' +
+                    needle +
+                    '". Hasil kodemu: "' +
+                    (logsText || "(kosong)") +
+                    '".',
+              );
+              hints.push(out.hint || "Cek kembali isi console.log() kamu.");
+            }
+          });
+        }
+        if (Array.isArray(out.containsAll)) {
+          out.containsAll.forEach((needle) => {
+            if (logsText.indexOf(String(needle)) !== -1) {
+              passed.push('Output konsol memuat "' + needle + '".');
+            } else {
+              errors.push('Output konsol belum memuat "' + needle + '".');
+              hints.push(
+                "Pastikan semua baris yang diminta instruksi dicetak.",
+              );
+            }
+          });
+        }
+        if (out.logCount) {
+          const n = (run.logs || []).length;
+          const min = out.logCount.min;
+          const max = out.logCount.max;
+          if (
+            (min === undefined || n >= min) &&
+            (max === undefined || n <= max)
+          ) {
+            passed.push("Jumlah baris output sudah sesuai (" + n + " baris).");
+          } else {
+            errors.push(
+              out.msg ||
+                "Jumlah baris output belum sesuai: ada " +
+                  n +
+                  (min !== undefined ? ", minimal " + min : "") +
+                  (max !== undefined ? ", maksimal " + max : "") +
+                  ".",
+            );
+            hints.push(
+              out.hint || "Tambahkan/kurangi console.log() sesuai instruksi.",
+            );
+          }
+        }
+
+        // ----- dom: [checkStr] — dievaluasi di dalam sandbox pasca-eksekusi -----
+        (rules.dom || []).forEach((item, i) => {
+          const ok = run.checkResults && run.checkResults[i] === true;
+          const conf = typeof item === "string" ? {} : item;
+          if (ok) {
+            passed.push(conf.passed || "Pemeriksaan DOM terpenuhi.");
+          } else {
+            errors.push(
+              conf.msg ||
+                "Hasil akhir halaman belum sesuai yang diminta instruksi.",
+            );
+            if (conf.hint) hints.push(conf.hint);
+          }
+        });
+      }
+    }
+
+    // dedupe errors & hints (pola sama seperti validateCode)
+    const seen = new Set();
+    const uniqErrors = errors.filter((e) => {
+      if (seen.has(e)) return false;
+      seen.add(e);
+      return true;
+    });
+    const seenH = new Set();
+    const uniqHints = hints.filter((h) => {
+      if (seenH.has(h)) return false;
+      seenH.add(h);
+      return true;
+    });
+
+    return {
+      success: uniqErrors.length === 0,
+      errors: uniqErrors,
+      passed: passed,
+      hints: uniqHints.slice(0, 3),
+    };
   }
 
   function tagName(el) {
@@ -63,11 +276,28 @@
     );
   }
 
-  var VOID_TAGS = ["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"];
+  var VOID_TAGS = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+  ];
 
   /** Inspect the raw text (not the repaired DOM) for unclosed / mis-nested tags. */
   function findTagProblems(code, only) {
-    var src = String(code || "").replace(/<!--[\s\S]*?-->/g, "").replace(/<!doctype[^>]*>/gi, "");
+    var src = String(code || "")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<!doctype[^>]*>/gi, "");
     var re = /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
     var stack = [];
     var problems = [];
@@ -84,15 +314,29 @@
         stack.pop();
       } else if (stack.indexOf(name) !== -1) {
         var top = stack[stack.length - 1];
-        problems.push("Urutan penutupan salah: </" + name + "> muncul sebelum </" + top + "> ditutup. Tutup tag yang dibuka paling akhir terlebih dahulu.");
+        problems.push(
+          "Urutan penutupan salah: </" +
+            name +
+            "> muncul sebelum </" +
+            top +
+            "> ditutup. Tutup tag yang dibuka paling akhir terlebih dahulu.",
+        );
         while (stack.length && stack[stack.length - 1] !== name) stack.pop();
         stack.pop();
       } else {
-        problems.push("Tag penutup </" + name + "> tidak punya tag pembuka <" + name + ">.");
+        problems.push(
+          "Tag penutup </" + name + "> tidak punya tag pembuka <" + name + ">.",
+        );
       }
     }
     stack.forEach(function (name) {
-      problems.push("Tag <" + name + "> belum ditutup dengan </" + name + ">. Ingat tanda / pada tag penutup.");
+      problems.push(
+        "Tag <" +
+          name +
+          "> belum ditutup dengan </" +
+          name +
+          ">. Ingat tanda / pada tag penutup.",
+      );
     });
     return problems;
   }
@@ -596,21 +840,31 @@
     // ---------- wellFormed (raw source: closed + properly nested tags) ----------
     if (rules.wellFormed) {
       var only = Array.isArray(rules.wellFormed)
-        ? rules.wellFormed.map(function (t) { return String(t).toLowerCase(); })
+        ? rules.wellFormed.map(function (t) {
+            return String(t).toLowerCase();
+          })
         : null;
       var problems = findTagProblems(code, only);
       if (problems.length === 0) {
         passed.push("Semua tag sudah ditutup dengan benar.");
       } else {
-        problems.forEach(function (msg) { errors.push(msg); });
-        hints.push("Setiap tag pembuka <x> butuh tag penutup </x> (perhatikan tanda /).");
+        problems.forEach(function (msg) {
+          errors.push(msg);
+        });
+        hints.push(
+          "Setiap tag pembuka <x> butuh tag penutup </x> (perhatikan tanda /).",
+        );
       }
     }
 
     // ---------- rawMatch (raw source must match a pattern) ----------
     (rules.rawMatch || []).forEach(function (rule) {
       var re;
-      try { re = new RegExp(rule.pattern, rule.flags || ""); } catch (e) { return; }
+      try {
+        re = new RegExp(rule.pattern, rule.flags || "");
+      } catch (e) {
+        return;
+      }
       if (re.test(String(code || ""))) {
         passed.push(rule.passed || "Penulisan kode sudah sesuai.");
       } else {
@@ -620,7 +874,10 @@
     });
 
     // ---------- css (Jalur CSS: nilai akhir sebuah properti) ----------
-    if ((rules.css && rules.css.length) || (rules.cssMedia && rules.cssMedia.length)) {
+    if (
+      (rules.css && rules.css.length) ||
+      (rules.cssMedia && rules.cssMedia.length)
+    ) {
       var CC = getCSSCheck();
       var cssApi = CC ? CC.create(doc) : null;
       if (!cssApi) {
@@ -630,11 +887,19 @@
           var label = item.sel + " { " + item.prop + " }";
           var ok;
           var els;
-          try { els = doc.querySelectorAll(item.sel); } catch (e) { els = []; }
+          try {
+            els = doc.querySelectorAll(item.sel);
+          } catch (e) {
+            els = [];
+          }
           // literal: selector seperti ".tombol:hover" tidak cocok dengan element manapun saat tidak
           // di-hover, jadi cukup periksa teks aturannya (element-nya dicek lewat rule `selectors`).
           if (els.length === 0 && !item.literal) {
-            errors.push(item.missingMsg || item.msg || ('Element "' + item.sel + '" tidak ditemukan di HTML kamu.'));
+            errors.push(
+              item.missingMsg ||
+                item.msg ||
+                'Element "' + item.sel + '" tidak ditemukan di HTML kamu.',
+            );
             if (item.hint) hints.push(item.hint);
             return;
           }
@@ -642,7 +907,8 @@
             ok = cssApi.has(item.sel, item.prop, item.value);
           } else if (item.min !== undefined || item.max !== undefined) {
             var n = cssApi.num(item.sel, item.prop);
-            ok = n !== null &&
+            ok =
+              n !== null &&
               (item.min === undefined || n >= item.min) &&
               (item.max === undefined || n <= item.max);
           } else if (item.all) {
@@ -652,22 +918,36 @@
           }
           if (item.not) ok = !ok; // not:true → nilai/properti ini justru TIDAK boleh cocok
           if (ok) {
-            passed.push(item.ok || ("CSS " + label + " sudah benar."));
+            passed.push(item.ok || "CSS " + label + " sudah benar.");
           } else {
-            errors.push(item.msg || (item.value !== undefined
-              ? 'Properti "' + item.prop + '" pada "' + item.sel + '" belum bernilai seperti yang diminta.'
-              : 'Properti "' + item.prop + '" pada "' + item.sel + '" belum diatur.'));
+            errors.push(
+              item.msg ||
+                (item.value !== undefined
+                  ? 'Properti "' +
+                    item.prop +
+                    '" pada "' +
+                    item.sel +
+                    '" belum bernilai seperti yang diminta.'
+                  : 'Properti "' +
+                    item.prop +
+                    '" pada "' +
+                    item.sel +
+                    '" belum diatur.'),
+            );
             if (item.hint) hints.push(item.hint);
           }
         });
         (rules.cssMedia || []).forEach(function (item) {
           // pattern: kondisi @media yang dicari; prop/value (opsional): deklarasi yang harus ada di dalam @media
-          var ok = cssApi.hasMedia(item.pattern || /./) &&
+          var ok =
+            cssApi.hasMedia(item.pattern || /./) &&
             (!item.prop || cssApi.mediaHas(item.prop, item.value));
           if (ok) {
             passed.push(item.ok || "Media query sudah ditulis.");
           } else {
-            errors.push(item.msg || "Media query (@media) belum ditulis dengan benar.");
+            errors.push(
+              item.msg || "Media query (@media) belum ditulis dengan benar.",
+            );
             if (item.hint) hints.push(item.hint);
           }
         });
@@ -698,7 +978,7 @@
   }
 
   // Export for browser and Node (testing)
-  const api = { validateCode, parseHTML };
+  const api = { validateCode, parseHTML, validateCodeJSAsync, getJSCheck };
   if (typeof window !== "undefined") {
     window.Validator = api;
   }

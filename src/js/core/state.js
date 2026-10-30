@@ -413,6 +413,32 @@
     },
 
     /**
+     * Track materi yang sedang dipilih (html | css | js).
+     * Disimpan agar saat kembali dari lesson ke dashboard / learning path,
+     * tab materi terakhir yang dipilih tetap aktif.
+     * Tidak ikut checksum: nilai ini kosmetik, bukan progres.
+     */
+    getActiveTrack() {
+      const user = this.getUser();
+      const t = user && user.activeTrack;
+      return t === "css" || t === "js" || t === "html" ? t : "html";
+    },
+
+    setActiveTrack(trackId) {
+      if (trackId !== "html" && trackId !== "css" && trackId !== "js") return;
+      const user = this.getUser();
+      user.activeTrack = trackId;
+      this._user = user;
+      this._persist();
+      if (window.Events) {
+        window.Events.emit(window.Events.STATE_CHANGED, {
+          key: "activeTrack",
+          value: trackId,
+        });
+      }
+    },
+
+    /**
      * Mark a lesson as completed
      */
     completeLesson(levelId, lessonId) {

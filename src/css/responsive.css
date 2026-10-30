@@ -361,6 +361,15 @@
   }
 
   /* Challenge / project editors get a predictable height on phones */
+  /* Tab berkas editor JS tetap ringkas di layar kecil */
+  .editor-file-tab {
+    font-size: 0.68rem;
+    padding: 0.22rem 0.55rem;
+  }
+  .editor-file-tabs {
+    gap: 4px;
+  }
+
   .challenge-layout .editor-panel,
   .project-layout .editor-panel {
     height: 260px;

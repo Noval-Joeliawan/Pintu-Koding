@@ -7,28 +7,53 @@ window.Progress = {
    */
   getTrackStats(trackId, user) {
     user = user || Storage.getUser();
-    const levels = (typeof LessonData !== 'undefined') ? LessonData.getLevelsByTrack(trackId) : [];
-    let totalLessons = 0, completedLessons = 0, completedLevels = 0, miniProjects = 0, projects = 0;
-    levels.forEach(level => {
-      const done = level.lessons.filter(l => user.completedLessons.includes(`${level.id}-${l.id}`)).length;
+    const levels =
+      typeof LessonData !== "undefined"
+        ? LessonData.getLevelsByTrack(trackId)
+        : [];
+    let totalLessons = 0,
+      completedLessons = 0,
+      completedLevels = 0,
+      miniProjects = 0,
+      projects = 0;
+    levels.forEach((level) => {
+      const done = level.lessons.filter((l) =>
+        user.completedLessons.includes(`${level.id}-${l.id}`),
+      ).length;
       totalLessons += level.lessons.length;
       completedLessons += done;
       if (done >= level.lessons.length) completedLevels++;
-      level.lessons.filter(l => l.isProject).forEach(l => {
-        projects++;
-        if (user.completedLessons.includes(`${level.id}-${l.id}`)) miniProjects++;
-      });
+      level.lessons
+        .filter((l) => l.isProject)
+        .forEach((l) => {
+          projects++;
+          if (user.completedLessons.includes(`${level.id}-${l.id}`))
+            miniProjects++;
+        });
     });
-    const percent = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
-    return { trackId, totalLessons, completedLessons, totalLevels: levels.length, completedLevels, miniProjects, totalProjects: projects, percent };
+    const percent = totalLessons
+      ? Math.round((completedLessons / totalLessons) * 100)
+      : 0;
+    return {
+      trackId,
+      totalLessons,
+      completedLessons,
+      totalLevels: levels.length,
+      completedLevels,
+      miniProjects,
+      totalProjects: projects,
+      percent,
+    };
   },
 
   getStats() {
     const user = Storage.getUser();
-    const html = this.getTrackStats('html', user);
-    const css = this.getTrackStats('css', user);
-    const totalAll = html.totalLessons + css.totalLessons;
-    const doneAll = html.completedLessons + css.completedLessons;
+    const html = this.getTrackStats("html", user);
+    const css = this.getTrackStats("css", user);
+    const js = this.getTrackStats("js", user);
+    const totalAll = html.totalLessons + css.totalLessons + js.totalLessons;
+    const doneAll =
+      html.completedLessons + css.completedLessons + js.completedLessons;
 
     return {
       completedLessons: html.completedLessons,
@@ -43,29 +68,31 @@ window.Progress = {
       hearts: user.hearts,
       html,
       css,
+      js,
       overall: {
         totalLessons: totalAll,
         completedLessons: doneAll,
-        percent: totalAll ? Math.round((doneAll / totalAll) * 100) : 0
-      }
+        percent: totalAll ? Math.round((doneAll / totalAll) * 100) : 0,
+      },
     };
   },
 
   _renderLevelBreakdown(trackId, user) {
-    if (typeof LessonData === 'undefined') return '';
-    return LessonData.getLevelsByTrack(trackId).map(level => {
-      const doneLessons = level.lessons.filter(l =>
-        user.completedLessons.includes(`${level.id}-${l.id}`)
-      ).length;
-      const lvlPct = Math.round((doneLessons / level.lessons.length) * 100);
-      const isUnlocked = user.unlockedLevels.includes(level.id);
+    if (typeof LessonData === "undefined") return "";
+    return LessonData.getLevelsByTrack(trackId)
+      .map((level) => {
+        const doneLessons = level.lessons.filter((l) =>
+          user.completedLessons.includes(`${level.id}-${l.id}`),
+        ).length;
+        const lvlPct = Math.round((doneLessons / level.lessons.length) * 100);
+        const isUnlocked = user.unlockedLevels.includes(level.id);
 
-      return `
-        <div style="margin-bottom:1rem;opacity:${isUnlocked ? '1' : '0.5'}">
+        return `
+        <div style="margin-bottom:1rem;opacity:${isUnlocked ? "1" : "0.5"}">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem">
             <div style="display:flex;align-items:center;gap:0.5rem">
               <span>${level.icon}</span>
-              <span style="font-weight:600;font-size:0.9rem">${isUnlocked ? '' : '🔒 '}${LessonData.getLevelLabel(level)}: ${level.title}</span>
+              <span style="font-weight:600;font-size:0.9rem">${isUnlocked ? "" : "🔒 "}${LessonData.getLevelLabel(level)}: ${level.title}</span>
             </div>
             <span style="font-size:0.85rem;color:var(--pk-text-light)">${doneLessons}/${level.lessons.length}</span>
           </div>
@@ -74,20 +101,27 @@ window.Progress = {
           </div>
         </div>
       `;
-    }).join('');
+      })
+      .join("");
   },
 
   render() {
-    const container = document.getElementById('progress-container');
+    const container = document.getElementById("progress-container");
     if (!container) return;
 
     const user = Storage.getUser();
     const stats = this.getStats();
     const secs = Hearts.getTimerSeconds();
-    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    const heartTimer = !Hearts.isFull() ? `<span style="font-size:0.8rem;color:var(--pk-text-light)">Next ❤️: ${h}:${m}:${s}</span>` : '';
+    const h = Math.floor(secs / 3600)
+      .toString()
+      .padStart(2, "0");
+    const m = Math.floor((secs % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (secs % 60).toString().padStart(2, "0");
+    const heartTimer = !Hearts.isFull()
+      ? `<span style="font-size:0.8rem;color:var(--pk-text-light)">Next ❤️: ${h}:${m}:${s}</span>`
+      : "";
 
     const trackCard = (title, t) => `
       <div class="card" style="margin-bottom:1.5rem">
@@ -102,17 +136,22 @@ window.Progress = {
       </div>
     `;
 
-    const totalProjects = stats.html.totalProjects + stats.css.totalProjects;
-    const doneProjects = stats.html.miniProjects + stats.css.miniProjects;
+    const totalProjects =
+      stats.html.totalProjects +
+      stats.css.totalProjects +
+      stats.js.totalProjects;
+    const doneProjects =
+      stats.html.miniProjects + stats.css.miniProjects + stats.js.miniProjects;
 
     container.innerHTML = `
-      ${trackCard('Jalur HTML', stats.html)}
-      ${stats.css.totalLessons ? trackCard('Jalur CSS', stats.css) : ''}
+      ${trackCard("Jalur HTML", stats.html)}
+      ${stats.css.totalLessons ? trackCard("Jalur CSS", stats.css) : ""}
+      ${stats.js.totalLessons ? trackCard("Jalur JavaScript", stats.js) : ""}
 
       <div class="dashboard-stats-row" style="margin-bottom:1.5rem">
         <div class="stat-card">
           <div class="stat-icon">🎯</div>
-          <div class="stat-value">${stats.html.completedLevels + stats.css.completedLevels}/${stats.html.totalLevels + stats.css.totalLevels}</div>
+          <div class="stat-value">${stats.html.completedLevels + stats.css.completedLevels + stats.js.completedLevels}/${stats.html.totalLevels + stats.css.totalLevels + stats.js.totalLevels}</div>
           <div class="stat-label">Level</div>
         </div>
         <div class="stat-card">
@@ -144,13 +183,26 @@ window.Progress = {
 
       <div class="card" style="margin-bottom:1.5rem">
         <h3 style="margin-bottom:1.25rem">Detail Jalur HTML</h3>
-        ${this._renderLevelBreakdown('html', user)}
+        ${this._renderLevelBreakdown("html", user)}
       </div>
-      ${stats.css.totalLessons ? `
+      ${
+        stats.css.totalLessons
+          ? `
       <div class="card">
         <h3 style="margin-bottom:1.25rem">Detail Jalur CSS</h3>
-        ${this._renderLevelBreakdown('css', user)}
-      </div>` : ''}
+        ${this._renderLevelBreakdown("css", user)}
+      </div>`
+          : ""
+      }
+      ${
+        stats.js.totalLessons
+          ? `
+      <div class="card">
+        <h3 style="margin-bottom:1.25rem">Detail Jalur JavaScript</h3>
+        ${this._renderLevelBreakdown("js", user)}
+      </div>`
+          : ""
+      }
     `;
-  }
+  },
 };
