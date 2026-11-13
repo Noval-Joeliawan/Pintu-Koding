@@ -13,6 +13,9 @@
       this._startTimer();
       this.render();
 
+      if (this._initialized) return;
+      this._initialized = true;
+
       if (typeof window !== "undefined" && window.Events) {
         window.Events.on(window.Events.HEART_REFILLED, () => this.render());
         window.Events.on(window.Events.STATE_CHANGED, (data) => {

@@ -276,6 +276,9 @@ window.Editor = {
   },
 
   initListeners() {
+    if (this._listenersInitialized) return;
+    this._listenersInitialized = true;
+
     if (
       typeof window !== "undefined" &&
       typeof window.addEventListener === "function"

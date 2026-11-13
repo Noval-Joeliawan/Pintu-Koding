@@ -267,6 +267,9 @@ window.App = {
   },
 
   _attachListeners() {
+    if (this._listenersAttached) return;
+    this._listenersAttached = true;
+
     // Theme toggle buttons
     document
       .getElementById("btn-theme-toggle")

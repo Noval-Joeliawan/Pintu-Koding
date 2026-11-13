@@ -382,18 +382,6 @@ textarea:focus-visible {
   }
 }
 
-.modal-overlay {
-  padding: 1rem;
-}
-.modal-content {
-  max-height: 100%;
-  overflow-y: auto;
-}
-.shortcut-modal-inner {
-  max-height: calc(100% - 2rem);
-  overflow-y: auto;
-}
-
 /* ============================================================
    DARK MODE (CRAFTED CARBON STUDIO) & HEART EXCHANGE SHOP
    ============================================================ */
@@ -549,37 +537,6 @@ html[data-theme="dark"] .review-list li {
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1;
-}
-
-.btn-buy-heart-pill {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--pk-radius-sm);
-  background: var(--pk-error-light);
-  border: 2px solid #fda4af;
-  box-shadow: 0 2px 0 #fda4af;
-  color: var(--pk-error-dark);
-  font-weight: 800;
-  font-size: 0.82rem;
-  transition: var(--transition);
-}
-
-.btn-buy-heart-pill:hover {
-  background: var(--pk-error);
-  color: #fff;
-  border-color: var(--pk-error-dark);
-  transform: translateY(-1px);
-}
-
-.buy-heart-cost {
-  background: rgba(255, 255, 255, 0.85);
-  color: #92400e;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
 }
 
 .stat-card-top-row {

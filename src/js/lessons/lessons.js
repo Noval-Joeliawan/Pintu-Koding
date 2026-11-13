@@ -303,10 +303,18 @@ window.LessonEngine = {
         this.slides[this.currentIndex].type === "mini-project" ||
         this.slides[this.currentIndex].type === "code-editor"
       ) {
-        const user = Storage.getUser();
-        if (!user.completedExercises.some((e) => e.startsWith("run_"))) {
-          user.completedExercises.push("run_first");
-          Storage.saveUser(user);
+        if (
+          typeof window !== "undefined" &&
+          window.State &&
+          typeof window.State.completeExercise === "function"
+        ) {
+          window.State.completeExercise("run_first");
+        } else {
+          const user = Storage.getUser();
+          if (!user.completedExercises.some((e) => e.startsWith("run_"))) {
+            user.completedExercises.push("run_first");
+            Storage.saveUser(user);
+          }
         }
       }
     } else {
@@ -379,12 +387,22 @@ window.LessonEngine = {
       (this._xpGained || 0) + Math.max(0, Storage.getUser().xp - xpBeforeLevel);
 
     // Unlock next level (urutan level berlanjut lintas jalur: HTML → CSS → JS)
-    const user = Storage.getUser();
     const nextLevel = LessonData.getLevel(levelId + 1);
     const nextLevelId = nextLevel ? nextLevel.id : null;
-    if (nextLevelId && !user.unlockedLevels.includes(nextLevelId)) {
-      user.unlockedLevels.push(nextLevelId);
-      Storage.saveUser(user);
+    if (nextLevelId) {
+      if (
+        typeof window !== "undefined" &&
+        window.State &&
+        typeof window.State.unlockLevel === "function"
+      ) {
+        window.State.unlockLevel(nextLevelId);
+      } else {
+        const user = Storage.getUser();
+        if (!user.unlockedLevels.includes(nextLevelId)) {
+          user.unlockedLevels.push(nextLevelId);
+          Storage.saveUser(user);
+        }
+      }
     }
     const crossesTrack =
       !!nextLevel &&
@@ -531,10 +549,22 @@ window.LessonEngine = {
         changed = true;
       }
     });
-    if (changed) Storage.saveUser(user);
+    if (changed) {
+      Storage.saveUser(user);
+      if (
+        typeof window !== "undefined" &&
+        window.State &&
+        typeof window.State.reload === "function"
+      ) {
+        window.State.reload();
+      }
+    }
   },
 
   initListeners() {
+    if (this._listenersInitialized) return;
+    this._listenersInitialized = true;
+
     if (typeof window !== "undefined" && window.Events) {
       window.Events.on(window.Events.HEARTS_EMPTY, () => {
         // Otomatis tampilkan dialog pemulihan jika modal belum terbuka

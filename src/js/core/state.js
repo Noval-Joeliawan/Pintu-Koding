@@ -83,9 +83,9 @@
         if (
           typeof user.level !== "number" ||
           user.level < 1 ||
-          user.level > 12
+          user.level > 32
         ) {
-          user.level = Math.max(1, Math.min(12, Number(user.level) || 1));
+          user.level = Math.max(1, Math.min(32, Number(user.level) || 1));
           fixed = true;
         }
         if (typeof user.streak !== "number" || user.streak < 0) {
@@ -254,12 +254,14 @@
       // Recalculate level if Progress module is available
       if (window.Progress && typeof window.Progress.getStats === "function") {
         const stats = window.Progress.getStats();
+        const totalLvls = (stats.totalLevels || 12) + (stats.css ? stats.css.totalLevels || 0 : 0) + (stats.js ? stats.js.totalLevels || 0 : 0);
+        const maxCourseLevel = Math.max(12, totalLvls || 32);
         const nextLevel = Math.min(
-          12,
+          maxCourseLevel,
           Math.max(1, Math.ceil((stats.completedLessons || 0) / 5)),
         );
         if (stats.percent >= 100) {
-          user.level = 12;
+          user.level = Math.max(user.level || 1, 12);
         } else if (user.level !== nextLevel) {
           user.level = nextLevel;
         }
@@ -494,6 +496,28 @@
           window.Events.emit(window.Events.STATE_CHANGED, {
             key: "unlockedLevels",
             value: user.unlockedLevels,
+          });
+        }
+        return true;
+      }
+      return false;
+    },
+
+    /**
+     * Unlock an achievement
+     */
+    unlockAchievement(achievementId) {
+      if (!achievementId) return false;
+      const user = this.getUser();
+      if (!user.achievements) user.achievements = [];
+      if (!user.achievements.includes(achievementId)) {
+        user.achievements.push(achievementId);
+        this._user = user;
+        this._persist();
+        if (window.Events) {
+          window.Events.emit(window.Events.STATE_CHANGED, {
+            key: "achievements",
+            value: user.achievements,
           });
         }
         return true;

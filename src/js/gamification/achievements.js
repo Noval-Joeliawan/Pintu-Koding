@@ -135,7 +135,10 @@ window.Achievements = {
   ],
 
   check() {
-    const user = Storage.getUser();
+    const user =
+      typeof window !== "undefined" && window.State
+        ? window.State.getUser()
+        : Storage.getUser();
     let newlyUnlocked = false;
 
     this.list.forEach((ach) => {
@@ -146,7 +149,7 @@ window.Achievements = {
             newlyUnlocked = true;
           }
         } catch (e) {
-          // ignore
+          // ignore condition check error
         }
       }
     });
@@ -155,15 +158,27 @@ window.Achievements = {
   },
 
   unlock(id, achData) {
-    const user = Storage.getUser();
-    if (user.achievements.includes(id)) return;
+    let unlocked = false;
+    if (
+      typeof window !== "undefined" &&
+      window.State &&
+      typeof window.State.unlockAchievement === "function"
+    ) {
+      unlocked = window.State.unlockAchievement(id);
+    } else {
+      const user = Storage.getUser();
+      if (!user.achievements.includes(id)) {
+        user.achievements.push(id);
+        Storage.saveUser(user);
+        unlocked = true;
+      }
+    }
 
-    user.achievements.push(id);
-    Storage.saveUser(user);
+    if (!unlocked) return;
 
     // Show toast notification
     const ach = achData || this.list.find((a) => a.id === id);
-    if (ach && typeof Navigation !== "undefined") {
+    if (ach && typeof Navigation !== "undefined" && typeof Navigation.showToast === "function") {
       Navigation.showToast(
         `🏆 Achievement terbuka: ${ach.icon} ${ach.title}!`,
         "success",
@@ -172,7 +187,11 @@ window.Achievements = {
   },
 
   isUnlocked(id) {
-    return Storage.getUser().achievements.includes(id);
+    const user =
+      typeof window !== "undefined" && window.State
+        ? window.State.getUser()
+        : Storage.getUser();
+    return (user.achievements || []).includes(id);
   },
 
   render() {

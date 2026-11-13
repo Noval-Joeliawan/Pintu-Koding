@@ -122,7 +122,11 @@
   }
 
   function setJSON(key, val) {
-    localStorage.setItem(key, JSON.stringify(val));
+    try {
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) {
+      // Storage quota or serialization fallback
+    }
   }
 
   function toInt(raw, fallback) {
@@ -132,90 +136,100 @@
 
   window.Storage = {
     getUser() {
-      const heartsRaw = localStorage.getItem(KEYS.hearts);
-      return {
-        username: localStorage.getItem(KEYS.username) || DEFAULT_USER.username,
-        xp: Math.max(0, toInt(localStorage.getItem(KEYS.xp), DEFAULT_USER.xp)),
-        level: Math.max(
-          1,
-          toInt(localStorage.getItem(KEYS.level), DEFAULT_USER.level),
-        ),
-        hearts:
-          heartsRaw !== null && !isNaN(parseInt(heartsRaw, 10))
-            ? Math.min(5, Math.max(0, parseInt(heartsRaw, 10)))
-            : DEFAULT_USER.hearts,
-        maxHearts: 5,
-        nextHeartRefill: toInt(
-          localStorage.getItem(KEYS.nextHeartRefill),
-          DEFAULT_USER.nextHeartRefill,
-        ),
-        streak: Math.max(
-          0,
-          toInt(localStorage.getItem(KEYS.streak), DEFAULT_USER.streak),
-        ),
-        lastStudyDate:
-          localStorage.getItem(KEYS.lastStudyDate) ||
-          DEFAULT_USER.lastStudyDate,
-        completedLessons: getJSON(
-          KEYS.completedLessons,
-          DEFAULT_USER.completedLessons,
-        ),
-        completedExercises: getJSON(
-          KEYS.completedExercises,
-          DEFAULT_USER.completedExercises,
-        ),
-        unlockedLevels: getJSON(
-          KEYS.unlockedLevels,
-          DEFAULT_USER.unlockedLevels,
-        )
-          .map(Number)
-          .filter(Number.isFinite),
-        achievements: getJSON(KEYS.achievements, DEFAULT_USER.achievements),
-        lastLesson:
-          localStorage.getItem(KEYS.lastLesson) || DEFAULT_USER.lastLesson,
-        activeTrack: (() => {
-          const t = localStorage.getItem(KEYS.activeTrack);
-          return VALID_TRACKS.indexOf(t) !== -1 ? t : DEFAULT_USER.activeTrack;
-        })(),
-        dailyBonusDate:
-          localStorage.getItem(KEYS.dailyBonusDate) ||
-          DEFAULT_USER.dailyBonusDate,
-      };
+      try {
+        const heartsRaw = localStorage.getItem(KEYS.hearts);
+        return {
+          username: localStorage.getItem(KEYS.username) || DEFAULT_USER.username,
+          xp: Math.max(0, toInt(localStorage.getItem(KEYS.xp), DEFAULT_USER.xp)),
+          level: Math.max(
+            1,
+            toInt(localStorage.getItem(KEYS.level), DEFAULT_USER.level),
+          ),
+          hearts:
+            heartsRaw !== null && !isNaN(parseInt(heartsRaw, 10))
+              ? Math.min(5, Math.max(0, parseInt(heartsRaw, 10)))
+              : DEFAULT_USER.hearts,
+          maxHearts: 5,
+          nextHeartRefill: toInt(
+            localStorage.getItem(KEYS.nextHeartRefill),
+            DEFAULT_USER.nextHeartRefill,
+          ),
+          streak: Math.max(
+            0,
+            toInt(localStorage.getItem(KEYS.streak), DEFAULT_USER.streak),
+          ),
+          lastStudyDate:
+            localStorage.getItem(KEYS.lastStudyDate) ||
+            DEFAULT_USER.lastStudyDate,
+          completedLessons: getJSON(
+            KEYS.completedLessons,
+            DEFAULT_USER.completedLessons,
+          ),
+          completedExercises: getJSON(
+            KEYS.completedExercises,
+            DEFAULT_USER.completedExercises,
+          ),
+          unlockedLevels: getJSON(
+            KEYS.unlockedLevels,
+            DEFAULT_USER.unlockedLevels,
+          )
+            .map(Number)
+            .filter(Number.isFinite),
+          achievements: getJSON(KEYS.achievements, DEFAULT_USER.achievements),
+          lastLesson:
+            localStorage.getItem(KEYS.lastLesson) || DEFAULT_USER.lastLesson,
+          activeTrack: (() => {
+            const t = localStorage.getItem(KEYS.activeTrack);
+            return VALID_TRACKS.indexOf(t) !== -1 ? t : DEFAULT_USER.activeTrack;
+          })(),
+          dailyBonusDate:
+            localStorage.getItem(KEYS.dailyBonusDate) ||
+            DEFAULT_USER.dailyBonusDate,
+        };
+      } catch (err) {
+        return Object.assign({}, DEFAULT_USER);
+      }
     },
 
     saveUser(data) {
-      if (data.username !== undefined)
-        localStorage.setItem(KEYS.username, data.username);
-      if (data.xp !== undefined) localStorage.setItem(KEYS.xp, data.xp);
-      if (data.level !== undefined)
-        localStorage.setItem(KEYS.level, data.level);
-      if (data.hearts !== undefined)
-        localStorage.setItem(KEYS.hearts, data.hearts);
-      localStorage.setItem(KEYS.maxHearts, "5");
-      if (data.nextHeartRefill !== undefined)
-        localStorage.setItem(KEYS.nextHeartRefill, data.nextHeartRefill);
-      if (data.streak !== undefined)
-        localStorage.setItem(KEYS.streak, data.streak);
-      if (data.lastStudyDate !== undefined)
-        localStorage.setItem(KEYS.lastStudyDate, data.lastStudyDate);
-      if (data.completedLessons !== undefined)
-        setJSON(KEYS.completedLessons, data.completedLessons);
-      if (data.completedExercises !== undefined)
-        setJSON(KEYS.completedExercises, data.completedExercises);
-      if (data.unlockedLevels !== undefined)
-        setJSON(KEYS.unlockedLevels, data.unlockedLevels);
-      if (data.achievements !== undefined)
-        setJSON(KEYS.achievements, data.achievements);
-      if (data.lastLesson !== undefined)
-        localStorage.setItem(KEYS.lastLesson, data.lastLesson);
-      if (
-        data.activeTrack !== undefined &&
-        VALID_TRACKS.indexOf(data.activeTrack) !== -1
-      ) {
-        localStorage.setItem(KEYS.activeTrack, data.activeTrack);
+      if (!data || typeof data !== "object") return;
+      try {
+        if (data.username !== undefined)
+          localStorage.setItem(KEYS.username, String(data.username));
+        if (data.xp !== undefined)
+          localStorage.setItem(KEYS.xp, Math.max(0, toInt(data.xp, 0)));
+        if (data.level !== undefined)
+          localStorage.setItem(KEYS.level, Math.max(1, toInt(data.level, 1)));
+        if (data.hearts !== undefined)
+          localStorage.setItem(KEYS.hearts, Math.min(5, Math.max(0, toInt(data.hearts, 5))));
+        localStorage.setItem(KEYS.maxHearts, "5");
+        if (data.nextHeartRefill !== undefined)
+          localStorage.setItem(KEYS.nextHeartRefill, toInt(data.nextHeartRefill, 0));
+        if (data.streak !== undefined)
+          localStorage.setItem(KEYS.streak, Math.max(0, toInt(data.streak, 0)));
+        if (data.lastStudyDate !== undefined)
+          localStorage.setItem(KEYS.lastStudyDate, String(data.lastStudyDate));
+        if (data.completedLessons !== undefined)
+          setJSON(KEYS.completedLessons, Array.isArray(data.completedLessons) ? data.completedLessons : []);
+        if (data.completedExercises !== undefined)
+          setJSON(KEYS.completedExercises, Array.isArray(data.completedExercises) ? data.completedExercises : []);
+        if (data.unlockedLevels !== undefined)
+          setJSON(KEYS.unlockedLevels, Array.isArray(data.unlockedLevels) ? data.unlockedLevels : [1]);
+        if (data.achievements !== undefined)
+          setJSON(KEYS.achievements, Array.isArray(data.achievements) ? data.achievements : []);
+        if (data.lastLesson !== undefined)
+          localStorage.setItem(KEYS.lastLesson, String(data.lastLesson));
+        if (
+          data.activeTrack !== undefined &&
+          VALID_TRACKS.indexOf(data.activeTrack) !== -1
+        ) {
+          localStorage.setItem(KEYS.activeTrack, data.activeTrack);
+        }
+        if (data.dailyBonusDate !== undefined)
+          localStorage.setItem(KEYS.dailyBonusDate, String(data.dailyBonusDate));
+      } catch (err) {
+        // Fallback for storage write failure
       }
-      if (data.dailyBonusDate !== undefined)
-        localStorage.setItem(KEYS.dailyBonusDate, data.dailyBonusDate);
     },
 
     init() {

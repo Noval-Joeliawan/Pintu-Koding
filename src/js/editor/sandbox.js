@@ -349,6 +349,9 @@
         this._iframe.parentNode.removeChild(this._iframe);
       }
       this._iframe = null;
+      this._pendingRequests.forEach((req) => {
+        if (req && req.timer) clearTimeout(req.timer);
+      });
       this._pendingRequests.clear();
       this._ready = false;
       this._initPromise = null;

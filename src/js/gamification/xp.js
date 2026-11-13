@@ -4,6 +4,12 @@
 
   const XP = {
     init() {
+      if (this._initialized) {
+        this.render();
+        return;
+      }
+      this._initialized = true;
+
       if (typeof window !== 'undefined' && window.Events) {
         window.Events.on(window.Events.XP_UPDATED, (data) => {
           this.render();
@@ -19,6 +25,7 @@
     },
 
     add(amount, reason = '') {
+      if (!amount || amount <= 0) return;
       if (typeof window !== 'undefined' && window.State) {
         window.State.addXP(amount, reason);
         return;

@@ -40,6 +40,9 @@ window.Navigation = {
   },
 
   init() {
+    if (this._navInitialized) return;
+    this._navInitialized = true;
+
     // Sidebar nav and bottom nav clicks
     document.querySelectorAll("[data-view]").forEach((el) => {
       el.addEventListener("click", (e) => {
@@ -438,6 +441,9 @@ window.Navigation = {
   },
 
   initKeyboardShortcuts() {
+    if (this._shortcutsInitialized) return;
+    this._shortcutsInitialized = true;
+
     document.addEventListener("keydown", (e) => {
       const modalOpen = (() => {
         const ov = document.getElementById("modal-overlay");
